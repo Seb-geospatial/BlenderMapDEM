@@ -17,13 +17,13 @@ def simplifyDEM(dem):
 def plotDEM(dem)
 
 # Generate 3D elevation map using Blender
-def renderDEM(output_dir, exaggeration = 0.3, resolution_scale = 100, samples = 20):
+def renderDEM(dem_dir, output_dir, exaggeration = 0.5, resolution_scale = 100, samples = 20):
      
-    # Set variables to hold resolution of DEM image
-    width = 2000
-    height = 2800
+    # Import DEM image
+    DEM = bpy.data.images.load(dem_dir)
     
-    #width, height = bpy.data.images['myImage'].size
+    # Set variables to hold resolution of DEM image
+    width, height = DEM.size
     
         ### --- Render Settings --- ###
     
@@ -32,12 +32,12 @@ def renderDEM(output_dir, exaggeration = 0.3, resolution_scale = 100, samples = 
     bpy.context.scene.cycles.feature_set = 'EXPERIMENTAL'
     
     # Set render output resolution to the same as DEM image
-    bpy.data.scenes["Scene"].render.resolution_x = width
-    bpy.data.scenes["Scene"].render.resolution_y = height
+    bpy.data.scenes['Scene'].render.resolution_x = width
+    bpy.data.scenes['Scene'].render.resolution_y = height
     
     # Specify render quality
-    bpy.data.scenes["Scene"].render.resolution_percentage = resolution_scale
-    bpy.data.scenes["Scene"].cycles.samples = samples
+    bpy.data.scenes['Scene'].render.resolution_percentage = resolution_scale
+    bpy.data.scenes['Scene'].cycles.samples = samples
     
         ### --- Plane Settings --- ###
     
@@ -74,7 +74,7 @@ def renderDEM(output_dir, exaggeration = 0.3, resolution_scale = 100, samples = 
     camera.rotation_euler[2] = 0
     
     # Set camera to orthographic
-    bpy.data.cameras["Camera"].type = 'ORTHO'
+    bpy.data.cameras['Camera'].type = 'ORTHO'
     
     # Set orthographic scale to be twice the largest dimension of our plane (so plane fills view)
     if width/1000 > height/1000:
@@ -82,18 +82,18 @@ def renderDEM(output_dir, exaggeration = 0.3, resolution_scale = 100, samples = 
     elif height/1000 > width/1000:
         orthographic_scale = 2*(height/1000)
     
-    bpy.data.cameras["Camera"].ortho_scale = orthographic_scale
+    bpy.data.cameras['Camera'].ortho_scale = orthographic_scale
     
         ### --- Light Settings --- ###
     
-    light = bpy.data.objects["Light"]
+    light = bpy.data.objects['Light']
     
     # Select light and change its type to "Sun"
-    bpy.data.lights["Light"].type = 'SUN'
+    bpy.data.lights['Light'].type = 'SUN'
     
     # Change strength and hardness of light
-    bpy.data.lights["Light"].energy = 5
-    bpy.data.lights["Light"].angle = 1.5708
+    bpy.data.lights['Light'].energy = 5
+    bpy.data.lights['Light'].angle = 1.5708
     
     # Change direction of the light
     light.rotation_euler[0] = 0
@@ -102,30 +102,37 @@ def renderDEM(output_dir, exaggeration = 0.3, resolution_scale = 100, samples = 
     
         ### --- Shader Settings --- ###
 
-    mat = bpy.data.materials["Material"]
+    mat = bpy.data.materials['Material']
     
     # Add new material to plane
     bpy.data.objects['Plane'].active_material = mat
     bpy.context.object.active_material.cycles.displacement_method = 'DISPLACEMENT'
     
     # Set material color and change "Roughness" to 1 and "Specular" to 0 (makes material matte)
-    mat.node_tree.nodes["Principled BSDF"].inputs['Base Color'].default_value = (0.6, 0.6, 0.6, 1)
-    mat.node_tree.nodes["Principled BSDF"].inputs['Roughness'].default_value = 1
-    mat.node_tree.nodes["Principled BSDF"].inputs['Specular'].default_value = 0
+    mat.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value = (0.6, 0.6, 0.6, 1)
+    mat.node_tree.nodes['Principled BSDF'].inputs['Roughness'].default_value = 1
+    mat.node_tree.nodes['Principled BSDF'].inputs['Specular'].default_value = 0
     
-    # Add image texture node and set its extrapolation mode to "Extend"
-    #"C:\\Users\\sebas\\OneDrive\\Desktop\\Test Blender Map\\Blender Demo DEM.tif"
-    mat.node_tree.nodes.new('ShaderNodeTexImage')
+    # Add image texture node and specify its extension, interpolation, and colorspace modes
+    imageTexture = mat.node_tree.nodes.new('ShaderNodeTexImage')
+    imageTexture.image = DEM
     mat.node_tree.nodes["Image Texture"].extension = 'EXTEND'
+    mat.node_tree.nodes["Image Texture"].interpolation = 'Smart'
+    mat.node_tree.nodes['Image Texture'].image.colorspace_settings.name='Linear'
+
 
     # Add displacement node and specify the elevation exaggeration of heightmap
-    mat.node_tree.nodes.new('ShaderNodeDisplacement')
-    mat.node_tree.nodes["Displacement"].inputs['Scale'].default_value = exaggeration
+    displacement = mat.node_tree.nodes.new('ShaderNodeDisplacement')
+    mat.node_tree.nodes['Displacement'].inputs['Scale'].default_value = exaggeration
     
     # Add color ramp node
-    mat.node_tree.nodes.new('ShaderNodeValToRGB')
+    colorRamp = mat.node_tree.nodes.new('ShaderNodeValToRGB')
     
-    ### --- Render Image --- ###
+    # Link everything together
+    mat.node_tree.links.new(imageTexture.outputs['Color'], displacement.inputs['Height'])
+    mat.node_tree.links.new(displacement.outputs['Displacement'], mat.node_tree.nodes['Material Output'].inputs['Displacement'])
+       
+        ### --- Render Image --- ###
     
     # Set the output file path and format
     bpy.context.scene.render.filepath = output_dir
