@@ -14,7 +14,7 @@
     - [Installation](#installation)
 - [Usage](#usage)
     - [Render from python script using terminal](#terminal)
-    - [Render from python script using GUI](#GUI)
+    - [Render from python script using GUI](#gui)
     - [Usage tips](#tips)
 - [Acknowledgements](#acknowledgements)
 
@@ -24,10 +24,19 @@ This is a python module of functions for creating 3D hillshade maps using Blende
 
 This module is ultimately centered around its `renderDEM()` function which interfaces with Blender in order to generate a 3D rendered hillshade map using an input DEM image file.
 
+### What is DEM Data?
+A digital elevation model (DEM) is a 3D representation of a terrain's surface, created by using digital data to model the elevation of the ground. Essentially, it's a map that shows the height and shape of the land, including features like mountains, valleys, and rivers. DEMs are often created using remote sensing technologies like LiDAR or radar, which bounce signals off the Earth's surface to create a highly accurate elevation model.
+
+
+A DEM image is simply a visual representation of a DEM, created by rendering the elevation data in a way that is easy to understand and interpret. Typically, within a DEM image each pixel carries its elevation data as values closer to white are higher and values closer to black are lower. These images can be fed into blender to visualize this information in 3D space, creating high quality "hillshade" maps for use in cartography.
+
 ## 🏁 Getting Started <a name = "getting_started"></a>
+- This module requires an installation of **Blender**, a free and open-source 3D modelling software, in order to utilize its 3D visualization capabilities. At the time of writing, this module is working as of Blender 3.4 (latest version) and can be downloaded [here](https://www.blender.org/download/)
 
 ### 🔧 Requirements <a name = "requirements"></a>
-- This module requires an installation of **Blender**, a free and open-source 3D modelling software, in order to utilize its 3D visualization capabilities. At the time of writing this module is working as of Blender 3.4 (latest version) and can be downloaded [here](https://www.blender.org/download/)
+- Blender
+- Python packages:
+    - 
 
 ### ⛏️ Installation <a name = "installation"></a>
 
@@ -41,7 +50,7 @@ This module is ultimately centered around its `renderDEM()` function which inter
     - This will render a DEM image to the absolute directory specified in your renderDEM() function WITHOUT opening Blender's GUI.
     - For more information on starting Blender from the command line see [here](https://docs.Blender.org/manual/en/dev/advanced/command_line/launch/index.html).
 
-### 🖥️ Render Map from Python Script Using GUI <a name = "GUI"></a>
+### 🖥️ Render Map from Python Script Using GUI <a name = "gui"></a>
 - While rendering from the terminal is quicker and more resource efficient, it may be simpler if you are not that familiar with the command line to render using Blender's GUI.
 
 
@@ -49,12 +58,12 @@ This module is ultimately centered around its `renderDEM()` function which inter
 
 
 - Steps to render map using GUI:
-    1. When Blender starts, create a new project default by clicking the "General" template. Then, navigate to the "Scripting" workspace located at the far right along the top bar.
+    - When Blender starts, create a new project default by clicking the "General" template. Then, navigate to the "Scripting" workspace located at the far right along the top bar.
     ![alt text](https://docs.Blender.org/manual/en/latest/_images/interface_window-system_workspaces_screen.png "Blender workspace")
-    2. You should see a new workspace featuring a text editor and Blender's own python console. Along the top bar of the text editor click "Open Text" (folder icon).
-    3. Navigate to your python script (which imports bpy, this module, and calls the `renderDEM()` function) and open it.
-    4. Click the "Run Script" (play button icon) and the script should produce a rendered image according to the parameters specified in the renderDEM() function.
-    5. If you wish to make changes and run the script again, you must open a new project and repeat the previous steps. This is because the script is built around a new default project that is present each time the script is run from the terminal. (This is why it is recommended to render using the terminal (see above).
+    - You should see a new workspace featuring a text editor and Blender's own python console. Along the top bar of the text editor click "Open Text" (folder icon).
+    - Navigate to your python script (which imports bpy, this module, and calls the `renderDEM()` function) and open it.
+    - Click the "Run Script" (play button icon) and the script should produce a rendered image according to the parameters specified in the renderDEM() function.
+    - If you wish to make changes and run the script again, you must open a new project and repeat the previous steps. This is because the script is built around a new default project that is present each time the script is run from the terminal. (This is why it is recommended to render using the terminal (see above).
 
 ### 💡 Usage Tips <a name = "tips"></a>
 It is recommended to start with **very** conservative quality settings (renderDEM() arguments of `resolution_scale` and `samples`) so that you are able to quickly perform many test renders while you fine-tune the stylistic arguments before your final high-quality render (see HERE for context on appropriate argument values). 
