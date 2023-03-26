@@ -17,8 +17,8 @@ def simplifyDEM(dem):
 def plotDEM(dem)
 
 # Generate 3D elevation map using Blender
-def renderDEM(dem_dir, output_dir, exaggeration = 0.5, resolution_scale = 100, samples = 20):
-     
+def renderDEM(dem_dir: str, output_dir: str, exaggeration: float = 0.5, resolution_scale: int = 50, samples: int = 5):     
+   
     # Import DEM image
     DEM = bpy.data.images.load(dem_dir)
     
