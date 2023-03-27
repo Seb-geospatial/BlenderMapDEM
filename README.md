@@ -49,14 +49,16 @@ Below you will find documentation surrounding the functions featured in this mod
 renderDEM(dem_dir, output_dir, exaggeration = 0.5, resolution_scale = 50, samples = 5)
 ```
 
-Uses Blender to generate a 3D rendered hillshade map using an input DEM image file
+Uses Blender to generate a png of a 3D rendered hillshade map using an input DEM image file
 
 Parameters:
 - `dem_dir: str`
-    - Absolute directory of the input DEM image.
+    - Absolute directory of the input DEM image including its file extension. All standard image file types are acceptable as input and readable by Blender, **including .tif/.tiff files**.
+    - Example: `'absolute/path/to/DEM.tif'`.
     - **Requires string.**
 - `output_dir: str`
-    - Absolute directory path of the outputted rendered image.
+    - Absolute directory path of the outputted rendered image (including .png file extension).
+    - Example: `'absolute/path/to/output.png'`.
     - **Requires string.**
 - `exaggeration: float`
     - Level of topographic exaggeration to be applied to 3D plane based on input DEM. Higher values will result in "spiky" terrain and darker crevices between landforms.
@@ -74,10 +76,9 @@ Parameters:
 Usage example:
 ```Python
 # Notice my very conservative resolution_scale and samples values,
-# do not underestimate the length of time it takes to render image
-# with a high sample and resolution_scale value
+# do not underestimate the length of time it takes to render image with these values set too high
 
-renderDEM(dem_dir = 'C:/Users/sebas/OneDrive/Desktop/Test Blender Map/DEM.png', output_dir = 'C:/Users/sebas/OneDrive/Desktop/render.png', exaggeration = 0.5, resolution_scale = 25, samples = 2)
+renderDEM(dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputRender.png', exaggeration = 0.5, resolution_scale = 25, samples = 2)
 ```
 
 ## 🗺️ Blender Usage <a name = "usage"></a>
@@ -89,7 +90,7 @@ Example script.py:
 # Script to render a 3D hillshade map in Blender
 import BlenderMapDEM
 
-renderDEM(dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputRender.png', exaggeration = 0.5, resolution_scale = 100, samples = 50)
+renderDEM(dem_dir = 'C:/Users/sebas/OneDrive/Desktop/DEM.png', output_dir = 'C:/Users/sebas/OneDrive/Desktop/render.png', exaggeration = 0.5, resolution_scale = 100, samples = 50)
 
 # End of script
 ```
@@ -98,7 +99,7 @@ renderDEM(dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputRender.png', 
 - Steps to render map using terminal:
     - If Blender is not added to your PATH, in your terminal navigate to your Blender installation directory that contains your Blender.exe file. On Windows this defaults to: `C:\Program Files\Blender Foundation\Blender 3.4` as of Blender 3.4.
     - If Blender is added to your PATH, you should be able to run Blender from anywhere in your terminal. You can be sure it is added to your PATH if running "Blender" in your terminal from any directory opens a Blender instance. (see LINK for adding Blender to PATH).
-    - To run a python script which contains the renderDEM() function, input `./Blender.exe --background --python path/to/script.py` into your terminal (working on Git Bash, executing applications from the terminal may differ slightly between terminal clients).
+    - To run a python script which contains the renderDEM() function, input `./Blender.exe --background --python path/to/script.py` into your terminal (working on Git Bash, syntax for executing applications from the terminal may differ slightly between terminal clients).
     - This will render a DEM image to the absolute directory specified in your renderDEM() function WITHOUT opening Blender's GUI.
     - For more information on starting Blender from the command line see [here](https://docs.Blender.org/manual/en/dev/advanced/command_line/launch/index.html).
 
