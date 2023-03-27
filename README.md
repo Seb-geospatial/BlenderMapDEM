@@ -13,7 +13,8 @@
     - [Requirements](#requirements)
     - [Installation](#installation)
 - [Functions in this Module](#functions)
-    - [renderDEM](#render)
+    - [renderDEM()](#render)
+    - [simplifyDEM()](#simplify)
 - [Blender Usage](#usage)
     - [Render from python script using terminal](#terminal)
     - [Render from python script using GUI](#gui)
@@ -27,10 +28,7 @@ This is a python module of functions for creating 3D hillshade maps using Blende
 This module is ultimately centered around its `renderDEM()` function which interfaces with Blender in order to generate a 3D rendered hillshade map using an input DEM image file.
 
 ### What is DEM Data?
-A digital elevation model (DEM) is a 3D representation of a terrain's surface, created by using digital data to model the elevation of the ground. Essentially, it's a map that shows the height and shape of the land, including features like mountains, valleys, and rivers. DEMs are often created using remote sensing technologies like LiDAR or radar, which bounce signals off the Earth's surface to create a highly accurate elevation model.
-
-
-A DEM image is simply a visual representation of a digital elevation model (DEM), created by rendering the elevation data in a way that is easy to understand and interpret. Typically, within a DEM image each pixel carries its elevation data as values closer to white are higher and values closer to black are lower. These images can be fed into blender to visualize this information in 3D space, creating high quality "hillshade" maps for use in cartography.
+A digital elevation model (DEM) is a 3D representation of a terrain's surface, created using remote sensing technologies to model the elevation of the ground. A DEM image is simply a visual representation of a digital elevation model (DEM), created by rendering the elevation data in a way that is easy to understand and interpret. Typically, within a DEM image each pixel carries its elevation data as values closer to white are higher and values closer to black are lower. These images can be fed into Blender to visualize this information in 3D space, creating high quality "hillshade" maps for use in cartography.
 
 ## 🏁 Getting Started <a name = "getting_started"></a>
 This module requires an installation of **Blender**, a free and open-source 3D modelling software, in order to utilize its 3D visualization capabilities. At the time of writing, this module is working as of Blender 3.4 (latest version) and can be downloaded [here](https://www.blender.org/download/)
@@ -49,7 +47,7 @@ Below you will find documentation surrounding the functions featured in this mod
 renderDEM(dem_dir, output_dir, exaggeration = 0.5, resolution_scale = 50, samples = 5)
 ```
 
-Uses Blender to generate a png of a 3D rendered hillshade map using an input DEM image file
+Uses Blender to generate a png of a 3D rendered hillshade map using an input DEM image file.
 
 Parameters:
 - `dem_dir: str`
@@ -79,6 +77,39 @@ Usage example:
 # do not underestimate the length of time it takes to render image with these values set too high
 
 renderDEM(dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputRender.png', exaggeration = 0.5, resolution_scale = 25, samples = 2)
+```
+
+### simplifyDEM() <a name = "simplify"></a>
+```Python
+simplifyDEM(dem_dir, output_dir, reduction_factor = 2)
+```
+
+Uses the PIL package to read in an input DEM image (of likely a high resolution) and output a down-sampled image with lower file size and resolution using resample method appropriate for DEM maps. Helpful for easing resource requirements when rendering images in Blender.
+
+
+**NOTE:** it currently does not work with .GeoTIFF files which contain geospatial metadata, this method is intended to be used to prepare a file before it is imported into Blender to ease computational requirements on computers.
+
+
+Parameters:
+- `dem_dir: str`
+    - Absolute directory of the input DEM image including its file extension. All standard image file types are acceptable as input and readable by Blender, **including .tif/.tiff files**.
+    - Example: `'absolute/path/to/DEM.tif'`.
+    - **Requires string.**
+- `output_dir: str`
+    - Absolute directory path of the outputted down-sampled image (including chosen file extension, .tif or .png is recommended).
+    - Example: `'absolute/path/to/output.png'`.
+    - **Requires string.**
+- `reduction_factor: int`
+    - Refers to the integer by which to divide the input DEM resolution by. A `reduction_factor = 4` will result in a down-sampled image with a quarter of the original resolution, whereas a `reduction_factor = 10` will result in a down-sampled image with a tenth of the original resolution.
+    - Be gentle with the amount you reduce the resolution by, depending on the size of your input image, reducing the resolution by more than half could have negative impacts on its clarity in the final rendered image.
+    - **Requires integer and defaults to 2 (reducing resolution by half).**
+
+
+Usage example:
+```Python
+# The following code reduces the resolution of the input DEM to be a quarter of its original
+
+renderDEM(dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputRender.png', reduction_factor = 4)
 ```
 
 ## 🗺️ Blender Usage <a name = "usage"></a>
@@ -119,8 +150,7 @@ renderDEM(dem_dir = 'C:/Users/sebas/OneDrive/Desktop/DEM.png', output_dir = 'C:/
     - If you wish to make changes and run the script again, you must open a new project and repeat the previous steps. This is because the script is built around a new default project that is present each time the script is run from the terminal. (This is why it is recommended to render using the terminal (see above).
 
 ### 💡 Usage Tips <a name = "tips"></a>
-It is recommended to start with **very** conservative quality settings (renderDEM() arguments of `resolution_scale` and `samples`) so that you are able to quickly perform many test renders while you fine-tune the stylistic arguments before your final high-quality render (see HERE for context on appropriate argument values). 
-This is because different input maps may have better readability with certain scale exaggerations, colors, shadows, etc. and rendering a high-quality map every time to tweak these parameters would require an unnecessary amount of time and resources.
+It is recommended to start with **very** conservative quality settings (renderDEM() arguments of `resolution_scale` and `samples`) so that you are able to quickly perform many test renders while you fine-tune the stylistic arguments before your final high-quality render. This is because different input maps may have better readability with certain scale exaggerations, colors, shadows, etc. and rendering a high-quality map every time to tweak these parameters would require an unnecessary amount of time and resources.
 
 ## 🙌 Acknowledgements <a name = "acknowledgements"></a>
 - This documentation was created with reference from the following template created by [@kylelobo](https://github.com/kylelobo), accessible [here](https://github.com/kylelobo/The-Documentation-Compendium/blob/master/en/README_TEMPLATES/Standard.md)
