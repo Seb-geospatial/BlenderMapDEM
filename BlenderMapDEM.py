@@ -11,14 +11,26 @@ def fetchDEM(upper_lat, lower_lat, left_lon, right_lon, output_dir, filename = '
 def fetchImagery(upper_lat,lower_lat,left_lon,right_lon, output_dir, filename = 'imagery.tif'):
 
 # Simplify DEM to a lower resolution
-def simplifyDEM(dem):
+def simplifyDEM(input_file_path: str, output_file_path: str, reduction_factor: int = 2):
+    # Open image
+    img = Image.open(input_file_path)
+    
+    # Calculate the new size of the image by dividing image by the reduction_fator
+    new_width = img.width // reduction_factor
+    new_height = img.height // reduction_factor
+    new_size = (new_width, new_height)
+    
+    # Downsample image while retaining as much quality as possible 
+    simplified_img = img.resize(new_size, resample=Image.BICUBIC)
+
+    # Save the downscaled image to a new file
+    simplified_img.save(output_file_path)
 
 # Plots 2D DEM visualization 
 def plotDEM(dem)
 
 # Generate 3D elevation map using Blender
 def renderDEM(dem_dir: str, output_dir: str, exaggeration: float = 0.5, resolution_scale: int = 50, samples: int = 5):     
-   
     # Import DEM image
     DEM = bpy.data.images.load(dem_dir)
     
