@@ -1,4 +1,5 @@
 # Import required packages
+from PIL import Image
 
 # Fetch DEM of user specified extent
 def fetchDEM(upper_lat, lower_lat, left_lon, right_lon, output_dir, filename = 'DEM.tif'):
@@ -11,7 +12,7 @@ def fetchDEM(upper_lat, lower_lat, left_lon, right_lon, output_dir, filename = '
 def fetchImagery(upper_lat,lower_lat,left_lon,right_lon, output_dir, filename = 'imagery.tif'):
 
 # Simplify DEM to a lower resolution
-def simplifyDEM(input_file_path: str, output_file_path: str, reduction_factor: int = 2):
+def simplifyDEM(dem_dir: str, output_dir: str, reduction_factor: int = 2):
     # Open image
     img = Image.open(input_file_path)
     
