@@ -13,6 +13,7 @@
     - [Requirements](#requirements)
     - [Installation](#installation)
 - [Functions in this Module](#functions)
+    - [renderDEM](#render)
 - [Blender Usage](#usage)
     - [Render from python script using terminal](#terminal)
     - [Render from python script using GUI](#gui)
@@ -32,22 +33,20 @@ A digital elevation model (DEM) is a 3D representation of a terrain's surface, c
 A DEM image is simply a visual representation of a digital elevation model (DEM), created by rendering the elevation data in a way that is easy to understand and interpret. Typically, within a DEM image each pixel carries its elevation data as values closer to white are higher and values closer to black are lower. These images can be fed into blender to visualize this information in 3D space, creating high quality "hillshade" maps for use in cartography.
 
 ## 🏁 Getting Started <a name = "getting_started"></a>
-- This module requires an installation of **Blender**, a free and open-source 3D modelling software, in order to utilize its 3D visualization capabilities. At the time of writing, this module is working as of Blender 3.4 (latest version) and can be downloaded [here](https://www.blender.org/download/)
+This module requires an installation of **Blender**, a free and open-source 3D modelling software, in order to utilize its 3D visualization capabilities. At the time of writing, this module is working as of Blender 3.4 (latest version) and can be downloaded [here](https://www.blender.org/download/)
 
 ### 🔧 Requirements <a name = "requirements"></a>
 - Blender
 - Python packages:
-    - 
 
 ### ⛏️ Installation <a name = "installation"></a>
 
 ## Functions in this Module <a name = "functions"></a>
-Below you will find documentation surrounding the functions featured in this module, their parameters, and usage examples
+Below you will find documentation surrounding the functions featured in this module, their parameters, and usage examples.
 
-#### renderDEM()
+### renderDEM() <a name = "render"></a>
 ```Python
-renderDEM(dem_dir, output_dir, exaggeration = 0.5, resolution_scale = 50,
-    samples = 5)
+renderDEM(dem_dir, output_dir, exaggeration = 0.5, resolution_scale = 50, samples = 5)
 ```
 
 Uses Blender to generate a 3D rendered hillshade map using an input DEM image file
@@ -74,7 +73,9 @@ Parameters:
 
 Usage example:
 ```Python
-# Notice my very conservative resolution_scale and samples values, do not underestimate the length of time it takes to render image with a high sample and resolution_scale value
+# Notice my very conservative resolution_scale and samples values,
+# do not underestimate the length of time it takes to render image
+# with a high sample and resolution_scale value
 
 renderDEM(dem_dir = 'C:/Users/sebas/OneDrive/Desktop/Test Blender Map/DEM.png', output_dir = 'C:/Users/sebas/OneDrive/Desktop/render.png', exaggeration = 0.5, resolution_scale = 25, samples = 2)
 ```
@@ -112,7 +113,7 @@ renderDEM(dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputRender.png', 
     - When Blender starts, create a new project default by clicking the "General" template. Then, navigate to the "Scripting" workspace located at the far right along the top bar.
     ![alt text](https://docs.Blender.org/manual/en/latest/_images/interface_window-system_workspaces_screen.png "Blender workspace")
     - You should see a new workspace featuring a text editor and Blender's own python console. Along the top bar of the text editor click "Open Text" (folder icon).
-    - Navigate to your python script (which imports bpy, this module, and calls the `renderDEM()` function) and open it.
+    - Navigate to your python script (which imports module and calls the `renderDEM()` function) and open it.
     - Click the "Run Script" (play button icon) and the script should produce a rendered image according to the parameters specified in the renderDEM() function.
     - If you wish to make changes and run the script again, you must open a new project and repeat the previous steps. This is because the script is built around a new default project that is present each time the script is run from the terminal. (This is why it is recommended to render using the terminal (see above).
 
