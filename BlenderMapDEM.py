@@ -1,34 +1,71 @@
 # Import required packages
 from PIL import Image
+import requests
 
-# Fetch DEM of user specified extent
-def fetchDEM(upper_lat, lower_lat, left_lon, right_lon, output_dir, filename = 'DEM.tif'):
-    # Create a bounding box for the DEM extent coordinates
-    bbox = {'lonLower':left_lon,'latLower':lower_lat,'lonHigher':right_lon,'latHigher':upper_lat}
+# Fetch DEM from OpenTopography of user specified extent
+def fetchDEM(north_bound: float, south_bound: float, east_bound: float, west_bound: float, API_Key: str, output_dir: str, dataset: str = 'SRTMGL1'):
+    # Declare possible DEM datasets
+    possible_datasets = ['SRTMGL3',
+                         'SRTMGL1',
+                         'SRTMGL1_E',
+                         'AW3D30',
+                         'AW3D30_E',
+                         'SRTM15Plus',
+                         'NASADEM',
+                         'COP30',
+                         'COP90',
+                         'EU_DTM',
+                         'GEDI_L3']
     
-    # Search database for DEM
-
-# Fetch satellite imagery of user specified extent
-def fetchImagery(upper_lat,lower_lat,left_lon,right_lon, output_dir, filename = 'imagery.tif'):
-
-# Simplify DEM to a lower resolution
-def simplifyDEM(dem_dir: str, output_dir: str, reduction_factor: int = 2):
-    # Open image
-    img = Image.open(input_file_path)
+    ### --- Catch a variety of user-input errors --- ###
     
-    # Calculate the new size of the image by dividing image by the reduction_fator
-    new_width = img.width // reduction_factor
-    new_height = img.height // reduction_factor
-    new_size = (new_width, new_height)
+    # Raise errors if output filename does not end in .tif, or if filename contains an invalid character
+    if output_dir[-4:] != '.tif':
+        raise ValueError('Invalid output filetype, make sure output_dir argument ends with .tif')
+      
+    # Raise error if dataset specified by user is not one of the available DEM datasets offered by OpenTopography
+    if dataset not in possible_datasets:
+        raise ValueError(f'Invalid dataset: "{dataset}" not present in available datasets offered by OpenTopography, see documentation for a list of available datasets')
+        
+    # Raise errors if invalid bounds were given by user
+    if (north_bound > 90 or south_bound > 90) or (north_bound < -90 or south_bound < -90):
+        raise ValueError('The values for north/south bounds must fall between -90 and 90')
+    elif (north_bound < south_bound):
+        raise ValueError('The north bound must be greater than the south bound')
+    elif (east_bound > 180 or west_bound > 180) or (east_bound < -180 or west_bound < -180):
+        raise ValueError('The values for east/west bounds must fall between -180 and 180')
+    elif (east_bound < west_bound):
+        raise ValueError('The east bound must be greater than the west bound')
     
-    # Downsample image while retaining as much quality as possible 
-    simplified_img = img.resize(new_size, resample=Image.BICUBIC)
+    ### --- Download DEM data from OpenTopography --- ###
+    
+    try:
+        # Query the OpenTopography API to download .GeoTiff of DEM according to user parameters
+        url = 'https://portal.opentopography.org/API/globaldem?demtype='+dataset+'&south='+str(south_bound)+'&north='+str(north_bound)+'&west='+str(west_bound)+'&east='+str(east_bound)+'&outputFormat=GTiff&API_Key='+API_Key
+        response = requests.get(url)
+        
+        # Raise an exception if the response is not 200 (OK)
+        response.raise_for_status()
+        
+        # Raise error if no data exists for chosen bounding box in dataset
+        if "No Data" in response.text:
+            raise Exception("Request was OK, however there is no data for specified extent")
+        
+        # Download DEM image into output directory specified by user
+        open(output_dir, 'wb').write(response.content)
 
-    # Save the downscaled image to a new file
-    simplified_img.save(output_file_path)
-
-# Plots 2D DEM visualization 
-def plotDEM(dem)
+    ### --- Raise server response errors --- ###
+        
+    # Depending on server response, raise a variety of errors as outlined in the API informing user about possible issues in their query
+    except requests.exceptions.HTTPError as error:
+        if response.status_code == 400:
+            raise Exception('Bad Request (Error Code 400): Verify boundaries provided create a valid bounding box and do not exceed the area limitations of the dataset')
+        elif response.status_code == 401:
+            raise Exception('Unauthorized (Error Code 401): API key provided is invalid')
+        elif response.status_code == 500:
+            raise Exception('Internal Server Error (Error Code 500): OpenTopography database is currently down')
+        else:
+            raise error
 
 # Generate 3D elevation map using Blender
 def renderDEM(dem_dir: str, output_dir: str, exaggeration: float = 0.5, resolution_scale: int = 50, samples: int = 5):     
@@ -135,7 +172,6 @@ def renderDEM(dem_dir: str, output_dir: str, exaggeration: float = 0.5, resoluti
     mat.node_tree.nodes["Image Texture"].interpolation = 'Smart'
     mat.node_tree.nodes['Image Texture'].image.colorspace_settings.name='Linear'
 
-
     # Add displacement node and specify the elevation exaggeration of heightmap
     displacement = mat.node_tree.nodes.new('ShaderNodeDisplacement')
     mat.node_tree.nodes['Displacement'].inputs['Scale'].default_value = exaggeration
@@ -155,3 +191,25 @@ def renderDEM(dem_dir: str, output_dir: str, exaggeration: float = 0.5, resoluti
     
     # Render the image
     bpy.ops.render.render(write_still=True)
+
+# Simplify DEM to a lower resolution
+def simplifyDEM(dem_dir: str, output_dir: str, reduction_factor: int = 2):
+    # Open image
+    img = Image.open(input_file_path)
+    
+    # Calculate the new size of the image by dividing image by the reduction_fator
+    new_width = img.width // reduction_factor
+    new_height = img.height // reduction_factor
+    new_size = (new_width, new_height)
+    
+    # Downsample image while retaining as much quality as possible 
+    simplified_img = img.resize(new_size, resample=Image.BICUBIC)
+
+    # Save the downscaled image to a new file
+    simplified_img.save(output_file_path)
+
+# Fetch satellite imagery of user specified extent
+#def fetchImagery(upper_lat,lower_lat,left_lon,right_lon, output_dir, filename = 'imagery.tif'):
+
+# Plots 2D DEM visualization 
+#def plotDEM(dem)
