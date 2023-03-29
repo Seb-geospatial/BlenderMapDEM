@@ -1,6 +1,8 @@
 # Import required packages
 from PIL import Image
 import requests
+import os
+import re
 
 # Fetch DEM from OpenTopography of user specified extent
 def fetchDEM(north_bound: float, south_bound: float, east_bound: float, west_bound: float, API_Key: str, output_dir: str, dataset: str = 'SRTMGL1'):
@@ -19,14 +21,21 @@ def fetchDEM(north_bound: float, south_bound: float, east_bound: float, west_bou
     
     ### --- Catch a variety of user-input errors --- ###
     
-    # Raise errors if output filename does not end in .tif, or if filename contains an invalid character
-    if output_dir[-4:] != '.tif':
-        raise ValueError('Invalid output filetype, make sure output_dir argument ends with .tif')
-      
+    # Check for invalid characters in output directory
+    pattern = re.compile(r'[^a-zA-Z0-9_\-\\/.\s]')
+    if pattern.search(output_dir):
+        raise ValueError('Input or output directory contains invalid characters.')
+    
+    # Check for invalid output directory or filetype errors
+    if not output_dir.endswith(('.tif','.tiff')):
+        raise ValueError(f'Invalid output filetype "{output_dir}", make sure output_dir argument ends with ".tif"')
+    if not os.path.exists(output_dir):
+        raise ValueError(f'Output file path "{output_dir}" does not exist, please create it.')
+        
     # Raise error if dataset specified by user is not one of the available DEM datasets offered by OpenTopography
     if dataset not in possible_datasets:
         raise ValueError(f'Invalid dataset: "{dataset}" not present in available datasets offered by OpenTopography, see documentation for a list of available datasets')
-        
+    
     # Raise errors if invalid bounds were given by user
     if (north_bound > 90 or south_bound > 90) or (north_bound < -90 or south_bound < -90):
         raise ValueError('The values for north/south bounds must fall between -90 and 90')
@@ -192,10 +201,36 @@ def renderDEM(dem_dir: str, output_dir: str, exaggeration: float = 0.5, resoluti
     # Render the image
     bpy.ops.render.render(write_still=True)
 
-# Simplify DEM to a lower resolution
+# Simplify DEM image to a lower resolution
 def simplifyDEM(dem_dir: str, output_dir: str, reduction_factor: int = 2):
+    
+    ### --- Catch a variety of user-input errors --- ###
+    
+    # Check for invalid characters in input and output directories
+    pattern = re.compile(r'[^a-zA-Z0-9_\-\\/.\s]')
+    if pattern.search(dem_dir) or pattern.search(output_dir):
+        raise ValueError('Input or output directory contains invalid characters.')
+    
+    # Check for invalid input directory or filetype errors
+    if not os.path.exists(dem_dir):
+        raise ValueError(f'Input file path "{dem_dir}" does not exist.')
+    if not dem_dir.endswith(('.png', '.jpg', '.jpeg', '.bmp','.tif','.tiff')):
+        raise ValueError(f'Input file "{dem_dir}"" is not a valid image file.')
+    
+    # Check for invalid output directory or filetype errors
+    if not output_dir.endswith(('.png', '.jpg', '.jpeg', '.bmp','.tif','.tiff')):
+        raise ValueError(f'Output file "{dem_dir}" is not a valid image file.')  
+    if not os.path.exists(output_dir):
+        raise ValueError(f'Output file path "{output_dir}" does not exist, please create it.')
+    
+    # Check for invalid reduction_factor that would result in the same or larger image
+    if reduction_factor < 2:
+        raise ValueError(f'reduction_factor "{reduction_factor}" must be greater than or equal to 2 to reduce resolution.')
+    
+    ### --- Reduce image resolution and save --- ###
+    
     # Open image
-    img = Image.open(input_file_path)
+    img = Image.open(dem_dir)
     
     # Calculate the new size of the image by dividing image by the reduction_fator
     new_width = img.width // reduction_factor
@@ -206,7 +241,7 @@ def simplifyDEM(dem_dir: str, output_dir: str, reduction_factor: int = 2):
     simplified_img = img.resize(new_size, resample=Image.BICUBIC)
 
     # Save the downscaled image to a new file
-    simplified_img.save(output_file_path)
+    simplified_img.save(output_dir)
 
 # Fetch satellite imagery of user specified extent
 #def fetchImagery(upper_lat,lower_lat,left_lon,right_lon, output_dir, filename = 'imagery.tif'):
