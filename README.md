@@ -30,8 +30,6 @@ This is a python module of functions for creating 3D hillshade maps using Blende
 
 This module is ultimately centered around its `renderDEM()` function which interfaces with Blender in order to generate a 3D rendered hillshade map using an input DEM image file.
 
-<br/>
-
 ### What is DEM Data?
 A digital elevation model (DEM) is a 3D representation of a terrain's surface, created using remote sensing technologies to model the elevation of the ground. A DEM image is simply a visual representation of a digital elevation model (DEM), created by rendering the elevation data in a way that is easy to understand and interpret. Typically, within a DEM image each pixel carries its elevation data as values closer to white are higher and values closer to black are lower. These images can be fed into Blender to visualize this information in 3D space, creating high quality "hillshade" maps for use in cartography.
 
@@ -43,8 +41,6 @@ This module requires an installation of **Blender**, a free and open-source 3D m
 
 This module also requires an [OpenTopography API key](https://portal.opentopography.org/lidarAuthorizationInfo?s=api), obtained for free by creating an account with OpenTopography, in order to to utilize the `fetchDEM()` function. This must be done in order for the function to access the global DEM datasets hosted by OpenTopography through their API.
 
-<br/>
-
 ### 🔧 Requirements <a name = "requirements"></a>
 - [Blender](https://www.blender.org/download/)
 - [OpenTopography API key](https://portal.opentopography.org/lidarAuthorizationInfo?s=api)
@@ -55,16 +51,13 @@ This module also requires an [OpenTopography API key](https://portal.opentopogra
 
 `pip install requests PIL`
 
-<br/>
-
 ### ⛏️ Installation <a name = "installation"></a>
+- To install this module, begin by first downloading Blender, the required python packages, as well as obtain an OpenTopography API key.
 
 <br/>
 
-## Functions in this Module <a name = "functions"></a>
+## 📦 Functions in this Module <a name = "functions"></a>
 Below you will find documentation surrounding the functions featured in this module, their parameters, and usage examples.
-
-<br/>
 
 ### fetchDEM() <a name = "fetch"></a>
 ```Python
