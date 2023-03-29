@@ -94,7 +94,9 @@ def renderDEM(dem_dir: str, output_dir: str, exaggeration: float = 0.5, resoluti
         orthographic_scale = 2*(width/1000)
     elif height/1000 > width/1000:
         orthographic_scale = 2*(height/1000)
-    
+    elif height/1000 == width/1000:
+        orthographic_scale = 2*(height/1000)
+
     bpy.data.cameras['Camera'].ortho_scale = orthographic_scale
     
         ### --- Light Settings --- ###
