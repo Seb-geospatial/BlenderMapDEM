@@ -64,7 +64,7 @@ Below you will find documentation surrounding the functions featured in this mod
 fetchDEM(north_bound, south_bound, east_bound, west_bound, API_Key, output_dir, dataset = 'SRTMGL1')
 ```
 
-Uses the OpenTopography API in order to fetch a .GeoTIFF raster image containing DEM data for your specified extent that can then be opened using GIS programs.
+Uses the OpenTopography API in order to fetch a .GeoTIFF raster image containing DEM data for your specified extent that can then be opened using GIS programs. Fetching data may take a couple minutes.
 
 
 It is important to note that each dataset has limitations on the amount of area it can retrieve, and that fetching DEM data of a very large extent may result in long query times. Requests are limited to 500,000,000 km2 for GEDI L3, 125,000,000 km2 for SRTM15+ V2.1, 4,050,000 km2 for SRTM GL3, COP90 and 450,000 km2 for all other data.
@@ -132,6 +132,12 @@ renderDEM(dem_dir, output_dir, exaggeration = 0.5, resolution_scale = 50, sample
 Uses Blender to generate a 3D rendered hillshade map image using an input DEM image file.
 
 
+**NOTE:** this function is intended to be run directly by Blender (either through the terminal or GUI), utilizing Blender's own python installation and `bpy` package. This function **WILL NOT WORK** if it is called from a script that is run by a normal python installation because it wont be able to use Blender's capabilities to render the image.
+
+
+For more information on using Blender to execute this function, see the [Blender Usage](#usage) section.
+
+
 Parameters:
 - `dem_dir: str`
     - Absolute directory of the input DEM image including its file extension. All standard image file types are acceptable as input and readable by Blender, **including .tif/.tiff files**.
@@ -164,9 +170,6 @@ Usage example:
 renderDEM(dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputRender.png', exaggeration = 0.5, resolution_scale = 25, samples = 2)
 ```
 
-
-For more information on using Blender to execute this function, see the [Blender Usage](#usage) section.
-
 <br/>
 
 ### simplifyDEM() <a name = "simplify"></a>
@@ -186,11 +189,13 @@ Parameters:
     - Example: `'absolute/path/to/DEM.tif'`.
     - **Requires string.**
 - `output_dir: str`
-    - Directory path of the outputted down-sampled image (including chosen file extension, .tif or .png is recommended).
+    - Directory path of the outputted down-sampled image including its file extension. All standard image file types are acceptable as output **including .tif/.tiff files**.
+    - Note that the output file can be the same as the input file and the function will overwrite the input file with the new resolution. This may be convenient for keeping a clean working directory however is more destructive as changes to the file cannot be reverted.
     - Example: `'absolute/path/to/output.png'`.
     - **Requires string.**
 - `reduction_factor: int`
     - Refers to the integer by which to divide the input DEM resolution by. A `reduction_factor = 4` will result in a down-sampled image with a quarter of the original resolution, whereas a `reduction_factor = 10` will result in a down-sampled image with a tenth of the original resolution.
+    - **Must be equal or greater than 2**
     - Be gentle with the amount you reduce the resolution by, depending on the size of your input image, reducing the resolution by more than half could have negative impacts on its clarity in the final rendered image.
     - **Requires integer and defaults to 2 (reducing resolution by half).**
 
