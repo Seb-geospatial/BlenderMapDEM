@@ -10,8 +10,7 @@
 ## 📝 Table of Contents
 - [About](#about)
 - [Getting Started](#getting_started)
-    - [Requirements](#requirements)
-    - [Installation](#installation)
+- [Installation](#installation)
 - [Functions in this Module](#functions)
     - [fetchDEM()](#fetch)
     - [renderDEM()](#render)
@@ -36,31 +35,23 @@ A digital elevation model (DEM) is a 3D representation of a terrain's surface, c
 <br/>
 
 ## 🏁 Getting Started <a name = "getting_started"></a>
+- Requirements:
+    - [Blender](https://www.blender.org/download/)
+    - [OpenTopography API key](https://portal.opentopography.org/lidarAuthorizationInfo?s=api)
+    - Python 3.9
+
 This module requires an installation of **Blender**, a free and open-source 3D modelling software, in order to utilize the `renderDEM()` function. At the time of writing, this module is working as of Blender 3.4 (latest version) and can be downloaded [here](https://www.blender.org/download/).
 
 
 This module also requires an [OpenTopography API key](https://portal.opentopography.org/lidarAuthorizationInfo?s=api), obtained for free by creating an account with OpenTopography, in order to to utilize the `fetchDEM()` function. This must be done in order for the function to access the global DEM datasets hosted by OpenTopography through their API.
 
-### 🔧 Requirements <a name = "requirements"></a>
-- [Blender](https://www.blender.org/download/)
-- [OpenTopography API key](https://portal.opentopography.org/lidarAuthorizationInfo?s=api)
-- Python 3.9
-
-
-- Python dependencies:
-    - requests
-    - PIL
-
-
-`pip install requests PIL`
-
-### ⛏️ Installation <a name = "installation"></a>
+## 🔧 Installation <a name = "installation"></a>
 Please follow the following steps to install this package and enable its functionality both with fetching DEM images (using OpenTopography), as well as rendering images (using Blender)
 
-#### Step 1: Preliminary Steps
-- To install this module, begin by first downloading [Blender](https://www.blender.org/download/) as well as obtain an [OpenTopography API key](https://portal.opentopography.org/lidarAuthorizationInfo?s=api).
+### Step 1: Preliminary Steps
+To install this module, begin by first downloading [Blender](https://www.blender.org/download/) as well as obtain an [OpenTopography API key](https://portal.opentopography.org/lidarAuthorizationInfo?s=api).
 
-#### Step 2: Install Package Through Git
+### Step 2: Install Package Through Git
 Then run the following command in your terminal:
 
 `pip install git+https://github.com/Seb-B-364/BlenderMapDEM.git`
@@ -74,7 +65,7 @@ The reason you cant use the `renderDEM()` function at this point is because it m
 
 If you call this `renderDEM()` right now in a script you feed to Blender it will raise an import error because it doesnt know where that function is. To add it to Blender see the following step.
 
-#### Step 3: Add renderDEM.py to Blender's Modules Folder
+### Step 3: Add renderDEM.py to Blender's Modules Folder
 Blender runs on an entirely separate python installation (based on python 3.7) and installing packages/modules with custom functions beyond its defaults can be tricky and tiresome as `pip` does not work natively.
 
 
@@ -91,10 +82,10 @@ Then **paste** this file into Blender's `scripts/modules` folder so the `renderD
 
 `C:\Program Files\Blender Foundation\Blender 3.4\3.4\scripts\modules`
 
-![alt text](DEMO/imgs/step3-2 "Paste renderDEM.py file")
+![alt text](DEMO/imgs/step3-2.png "Paste renderDEM.py file")
 
 
-#### Step 4: Using the Package
+### Step 4: Using the Package
 To import this module into python scripts and use all its functions **EXCEPT** `renderDEM()`, add the following to your script.py:
 ```Python
 # Import package
@@ -140,31 +131,26 @@ The resulting .GeoTIFF DEM image, while openable in GIS programs, cannot be open
 
 
 Parameters:
-- `north_bound: float`
+- `north_bound: float` **Requires float**
     - Latitude coordinate of the northern bound of your chosen DEM extent.
     - This value must be greater than `south_bound` in order to create a valid bounding box. Acceptable values range **between 90 and -90.**
-    - **Requires float.**
-- `south_bound: float`
+- `south_bound: float` **Requires float**
     - Latitude coordinate of the southern bound of your chosen DEM extent.
     - This value must be less than `north_bound` in order to create a valid bounding box. Acceptable values range **between 90 and -90.**
-    - **Requires float.**
-- `east_bound: float`
+- `east_bound: float` **Requires float**
     - Longitude coordinate of the eastern bound of your chosen DEM extent.
     - This value must be greater than `west_bound` in order to create a valid bounding box. Acceptable values range **between 180 and -180.**
-    - **Requires float.**
-- `west_bound: float`
+- `west_bound: float` **Requires float**
     - Longitude coordinate of the western bound of your chosen DEM extent.
     - This value must be less than `east_bound` in order to create a valid bounding box. Acceptable values range **between 180 and -180.**
-    - **Requires float.**
-- `API_Key: str`
+- `API_Key: str` **Requires string**
     - OpenTopography API key, required for the function to fetch global DEM data made available by OpenTopography. Obtained free [here](https://portal.opentopography.org/lidarAuthorizationInfo?s=api).
-    - **Requires string.** 
-- `output_dir: str`
+- `output_dir: str` **Requires string**
     - Directory path of the fetched DEM (including .tif file extension).
     - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./output_here.tif` in order to save the output file in the directory it is called in.
         - Example: `'absolute/path/to/output.tif'` or `./relative_path_to_output.tif`
-    - **Requires string.**
-- `dataset: str`
+- `dataset: str` **Requires string and defaults to 'SRTMGL1'** 
+
     - Specifies the global raster DEM dataset hosted on OpenTopography to fetch data from.
     - Different datasets have different coverage, quality, cell resolution, or fetchable area limitations. In general, `'SRTMGL3'` (90m cell resolution) and `'SRTMGL1'` (30m cell resolution) are very high quality and widely used.
     - Available DEM datasets:
@@ -179,7 +165,6 @@ Parameters:
         - `'COP90'` (Copernicus Global DSM 90m)
         - `'EU_DTM'` (DTM 30m)
         - `'GEDI_L3'` (DTM 1000m)
-    - **Requires string and defaults to 'SRTMGL1'** 
 
 
 Usage example:
@@ -208,39 +193,32 @@ For more information on using Blender to execute this function, see the [Blender
 
 
 Parameters:
-- `dem_dir: str`
+- `dem_dir: str` **Requires string**
     - Directory of the input DEM image including its file extension. All standard image file types are acceptable as input and readable by Blender, **including .tif/.tiff files**.
     - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./DEM_here.tif` to select the DEM file in the directory it is called in.
         - Example: `'absolute/path/to/DEM.tif'` or `./relative_path_to_DEM.tif`
-    - **Requires string.**
-- `output_dir: str`
+- `output_dir: str` **Requires string**
     - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./output_here.tif` in order to save the output file in the directory it is called in.
         - Example: `'absolute/path/to/output.tif'` or `./relative_path_to_output.tif`
-    - **Requires string.**
-- `exaggeration: float`
+- `exaggeration: float` **Requires float and defaults to 0.5**
     - Level of topographic exaggeration to be applied to 3D plane based on input DEM. Higher values will result in "spiky" terrain and darker crevices between landforms when viewed from above.
     - Generally values between 0.3 (relatively flat) to 1 (very spiky) produce good maps however there is no limit to how high this value can go
     - Note that negative values are possible and will reverse the direction the terrain is exaggerated, "carving" the landscape underground.
-    - **Requires float and defaults to 0.5.**
-- `shadow_softness: float`
+- `shadow_softness: float` **Requires float and defaults to 90 (relatively soft)**
     - This value specifically refers to the angular diameter of the sun's light source however functionally it can be understood as shadow softness.
     - Acceptable values range from 0-180 however best results will come between values of around 10-90; **values below 0 will be treated as 0 and values above 180 will be treated as 180.**
     - Low values (0-10) will result in very hard shadows as if the landscape is on the moon, and higher values (45-90) will result in softer more natural shadows
     - Values approaching 180 may result in unusual shadows.
-    - **Requires float and defaults to 90 (relatively soft).**
-- `sun_angle: float`
+- `sun_angle: float` **Requires float and defaults to 45 (degrees)**
     - Vertical angle the sun is shining down on in degrees, mimicking how high the sun is in the sky.
     - Acceptable values range from 0-90; values both above 90 and below 0 are possible however may result in unusual shadows as the sun will shine from realistically impossible angles.
     - For reference a value of 90 will have the sun shining horizontally, a value of 0 will have it shining straight down, and a value of 45 will have it shining diagonally down allowing moderate shadows to be cast on the landforms.
-    - **Requires float and defaults to 45 (degrees).**
-- `resolution_scale: int`
+- `resolution_scale: int` **Requires integer and defaults to 50**
     - Scale of the rendered image resolution in relation to the input DEM resolution in the form of percentage. An input DEM with resolution 2000x2000 and a `resolution_scale = 100` will result in a rendered image with resolution 2000x2000 (100% of input DEM), whereas `resolution_scale = 50` will result in a final render of 1000x1000 (50% of input DEM).
     - It is recommended to keep this value around or below 50 while performing test renders to improve speed before raising it to 100 for the final render at full resolution. Has a great affect on render speed and resource load on computer.
-    - **Requires integer and defaults to 50.**
-- `samples: int`
+- `samples: int` **Requires integer and defaults to 5**
     - Amount of samples to be used in the final render. Samples can be understood as how many "passes" Blender takes over the image during the rendering process, refining the image more and more each sample/pass, making it more clear and less noisy. Has an **extremely large** affect on render speed and resource load on computer.
     - Depending on the strength of your computer it is recommended to keep this value very low (from 1-10) while performing test renders before your final render where you can then raise it to anywhere from 20-500+ for crisp image quality.
-    - **Requires integer and defaults to 5.**
 
 
 When in doubt, the default values of the stylistic parameters `exaggeration`, `shadow_softness`, and `sun_angle` will result in a very readable and realistic hillshade that can be then strayed from conservatively to your liking.
@@ -270,22 +248,19 @@ Uses the PIL package to read in an input DEM image (of likely a high resolution)
 
 
 Parameters:
-- `dem_dir: str`
+- `dem_dir: str` **Requires string**
     - Directory of the input DEM image including its file extension. All standard image file types **except .jpg and .jpeg** are acceptable as input **including .tif/.tiff files**.
     - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./DEM_here.tif` to select the DEM file in the directory it is called in.
         - Example: `'absolute/path/to/DEM.tif'` or `./relative_path_to_DEM.tif`
-    - **Requires string.**
-- `output_dir: str`
+- `output_dir: str` **Requires string**
     - Directory path of the outputted down-sampled image including its file extension. All standard image file types **except .jpg and .jpeg** are acceptable as output **including .tif/.tiff files**.
     - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./output_here.tif` in order to save the output file in the directory it is called in.
         - Example: `'absolute/path/to/output.tif'` or `./relative_path_to_output.tif`
     - Note that the output file can be the same as the input file and the function will overwrite the input file with the new resolution. This may be convenient for keeping a clean working directory however is more destructive as changes to the file cannot be reverted.
-    - **Requires string.**
-- `reduction_factor: int`
+- `reduction_factor: int` **Requires integer and defaults to 2 (halves resolution)**
     - Refers to the integer by which to divide the input DEM resolution by. A `reduction_factor = 4` will result in a down-sampled image with a quarter of the original resolution, whereas a `reduction_factor = 10` will result in a down-sampled image with a tenth of the original resolution.
     - **Must be equal or greater than 2**
     - Be gentle with the amount you reduce the resolution by, depending on the size of your input image, reducing the resolution by more than half could have negative impacts on its clarity in the final rendered image.
-    - **Requires integer and defaults to 2 (reducing resolution by half).**
 
 
 Usage example:
