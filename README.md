@@ -60,6 +60,7 @@ This module also requires an [OpenTopography API key](https://portal.opentopogra
 
 
 Then run the following command in your terminal:
+
 `pip install git+https://github.com/Seb-B-364/BlenderMapDEM.git`
 
 
