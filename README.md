@@ -56,7 +56,11 @@ This module also requires an [OpenTopography API key](https://portal.opentopogra
 `pip install requests PIL os re`
 
 ### ⛏️ Installation <a name = "installation"></a>
-- To install this module, begin by first downloading Blender, the required python packages, as well as obtain an OpenTopography API key.
+- To install this module, begin by first downloading Blender, the required python packages (optional, they will hopefully be installed automatically with the following command), as well as obtain an OpenTopography API key.
+
+
+Then run the following command in your terminal:
+`pip install git+https://github.com/Seb-B-364/BlenderMapDEM.git`
 
 <br/>
 
