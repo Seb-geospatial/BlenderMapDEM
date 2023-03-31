@@ -44,7 +44,9 @@ This module also requires an [OpenTopography API key](https://portal.opentopogra
 ### 🔧 Requirements <a name = "requirements"></a>
 - [Blender](https://www.blender.org/download/)
 - [OpenTopography API key](https://portal.opentopography.org/lidarAuthorizationInfo?s=api)
-- Python packages:
+
+
+- Python dependencies:
     - requests
     - PIL
     - os
@@ -72,7 +74,7 @@ Uses the OpenTopography API in order to fetch a .GeoTIFF raster image containing
 It is important to note that each dataset has limitations on the amount of area it can retrieve, and that fetching DEM data of a very large extent may result in long query times. Requests are limited to 500,000,000 km2 for GEDI L3, 125,000,000 km2 for SRTM15+ V2.1, 4,050,000 km2 for SRTM GL3, COP90 and 450,000 km2 for all other data.
 
 
-It is also important to note that the resulting .GeoTIFF DEM image, while openable in GIS programs, cannot be opened directly by a standard image viewer or Blender. This is so other geospatial operations can be performed on the DEM before it is imported into blender using its geographic metadata.
+The resulting .GeoTIFF DEM image, while openable in GIS programs, cannot be opened directly by a standard image viewer or Blender. This is so other geospatial operations can be performed on the DEM before it is imported into Blender using its geographic metadata.
 
 
 **NOTE:** This function requires an OpenTopography API key in order to fetch maps from their database, obtained through [creating an account](https://portal.opentopography.org/newUser) on the OpenTopography website,
@@ -101,7 +103,7 @@ Parameters:
 - `output_dir: str`
     - Directory path of the fetched DEM (including .tif file extension).
     - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./output_here.tif` in order to save the output file in the directory it is called in.
-    - Example: `'absolute/path/to/output.tif'` or `./relative_path_to_output.tif`
+        - Example: `'absolute/path/to/output.tif'` or `./relative_path_to_output.tif`
     - **Requires string.**
 - `dataset: str`
     - Specifies the global raster DEM dataset hosted on OpenTopography to fetch data from.
@@ -149,7 +151,7 @@ For more information on using Blender to execute this function, see the [Blender
 Parameters:
 - `dem_dir: str`
     - Directory of the input DEM image including its file extension. All standard image file types are acceptable as input and readable by Blender, **including .tif/.tiff files**.
-    - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./DEM_here.tif` in select the DEM file in the directory it is called in.
+    - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./DEM_here.tif` to select the DEM file in the directory it is called in.
         - Example: `'absolute/path/to/DEM.tif'` or `./relative_path_to_DEM.tif`
     - **Requires string.**
 - `output_dir: str`
@@ -211,7 +213,7 @@ Uses the PIL package to read in an input DEM image (of likely a high resolution)
 Parameters:
 - `dem_dir: str`
     - Directory of the input DEM image including its file extension. All standard image file types **except .jpg and .jpeg** are acceptable as input **including .tif/.tiff files**.
-    - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./DEM_here.tif` in select the DEM file in the directory it is called in.
+    - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./DEM_here.tif` to select the DEM file in the directory it is called in.
         - Example: `'absolute/path/to/DEM.tif'` or `./relative_path_to_DEM.tif`
     - **Requires string.**
 - `output_dir: str`
@@ -253,6 +255,9 @@ renderDEM(dem_dir = 'C:/Users/sebas/OneDrive/Desktop/DEM.tif', output_dir = 'C:/
 <br/>
 
 ### 🖥️ Render Map from Python Script Using Terminal <a name = "terminal"></a>
+Rendering your DEM map from the terminal is both more resource efficient and quicker to execute assuming you are familiar with the terminal.
+
+
 - If Blender is not added to your PATH:
     - In your terminal navigate to your Blender installation directory that contains your Blender.exe file. On Windows this defaults to: `C:\Program Files\Blender Foundation\Blender 3.4` as of Blender 3.4.
     - To run a python script which contains the renderDEM() function, input `./Blender.exe --background --python path/to/script.py` into your terminal (working on Git Bash, syntax for executing applications from the terminal may differ slightly between terminal clients).
@@ -270,14 +275,17 @@ renderDEM(dem_dir = 'C:/Users/sebas/OneDrive/Desktop/DEM.tif', output_dir = 'C:/
 <br/>
 
 ### 🖥️ Render Map from Python Script Using GUI <a name = "gui"></a>
-- While rendering from the terminal is quicker and more resource efficient, it may be simpler if you are not that familiar with the command line to render using Blender's GUI.
+While rendering from the terminal is quicker and more resource efficient for a single render, it may be simpler if you are not that familiar with the command line to render using Blender's GUI.
 
 
-- **NOTE:** the renderDEM() function is intended to work on a **new** Blender project file that features the default cube, camera, and light. If you already have Blender open and have made any changes to your project, go to `File>New>General` to create a new project.
+Using the GUI has a slight improvement in convenience if you wish to rerun the script and try out its different parameters as you can use the built-in text editor in the "Scripting" workspace to edit parameters on the fly.
+
+
+**NOTE:** the renderDEM() function is intended to work on a **new** Blender project file that features the default cube, camera, and light. If you already have Blender open and have made any changes to your project, go to `File>New>General` to create a new project.
 
 
 - Steps to render map using GUI:
-    - When Blender starts, create a new project default by clicking the "General" template. Then, navigate to the "Scripting" workspace located at the far right along the top bar.
+    - When Blender starts, create a new default project by clicking the "General" template. Then, navigate to the "Scripting" workspace located at the far right along the top bar.
     ![alt text](https://docs.Blender.org/manual/en/latest/_images/interface_window-system_workspaces_screen.png "Blender workspace")
     - You should see a new workspace featuring a text editor and Blender's own python console. Along the top bar of the text editor click "Open Text" (folder icon).
     - Navigate to your python script (which imports module and calls the `renderDEM()` function) and open it.
