@@ -36,7 +36,7 @@ A digital elevation model (DEM) is a 3D representation of a terrain's surface, c
 <br/>
 
 ## 🏁 Getting Started <a name = "getting_started"></a>
-This module requires an installation of **Blender**, a free and open-source 3D modelling software, in order to utilize the `renderDEM()` function. At the time of writing, this module is working as of Blender 3.4 (latest version) and can be downloaded [here](https://www.blender.org/download/)
+This module requires an installation of **Blender**, a free and open-source 3D modelling software, in order to utilize the `renderDEM()` function. At the time of writing, this module is working as of Blender 3.4 (latest version) and can be downloaded [here](https://www.blender.org/download/).
 
 
 This module also requires an [OpenTopography API key](https://portal.opentopography.org/lidarAuthorizationInfo?s=api), obtained for free by creating an account with OpenTopography, in order to to utilize the `fetchDEM()` function. This must be done in order for the function to access the global DEM datasets hosted by OpenTopography through their API.
@@ -44,34 +44,79 @@ This module also requires an [OpenTopography API key](https://portal.opentopogra
 ### 🔧 Requirements <a name = "requirements"></a>
 - [Blender](https://www.blender.org/download/)
 - [OpenTopography API key](https://portal.opentopography.org/lidarAuthorizationInfo?s=api)
+- Python 3.9
 
 
 - Python dependencies:
     - requests
     - PIL
-    - os
-    - re
 
 
-`pip install requests PIL os re`
+`pip install requests PIL`
 
 ### ⛏️ Installation <a name = "installation"></a>
-- To install this module, begin by first downloading Blender, the required python packages (optional, they will hopefully be installed automatically with the following command), as well as obtain an OpenTopography API key.
+Please follow the following steps to install this package and enable its functionality both with fetching DEM images (using OpenTopography), as well as rendering images (using Blender)
 
+#### Step 1: Preliminary Steps
+- To install this module, begin by first downloading [Blender](https://www.blender.org/download/) as well as obtain an [OpenTopography API key](https://portal.opentopography.org/lidarAuthorizationInfo?s=api).
 
+#### Step 2: Install Package Through Git
 Then run the following command in your terminal:
 
 `pip install git+https://github.com/Seb-B-364/BlenderMapDEM.git`
 
 
-Then in your script.py:
+At this point, all functions within this package **EXCEPT** `renderDEM()` can be used in your own python developer environment. You should now have the ability to fetch and work with DEM data.
+
+
+The reason you cant use the `renderDEM()` function at this point is because it makes use of Blender's built in `bpy` package which will be run automatically when a script containing the `renderDEM()` function is fed into Blender using the GUI or terminal. You do not need to have this package installed on your system's python installation, it is already installed in Blender's.
+
+
+If you call this `renderDEM()` right now in a script you feed to Blender it will raise an import error because it doesnt know where that function is. To add it to Blender see the following step.
+
+#### Step 3: Add renderDEM.py to Blender's Modules Folder
+Blender runs on an entirely separate python installation (based on python 3.7) and installing packages/modules with custom functions beyond its defaults can be tricky and tiresome as `pip` does not work natively.
+
+
+To get around this we can simply add the python file within this package containing the `renderDEM()` function to Blenders own modules folder. This will allow any script that is given to python containing `renderDEM()` to run without errors.
+
+
+First go to the directory this package was installed in to access its files and **copy** the `renderDEM.py` file. By default (on Windows as of python 3.9) this is found here:
+
+`C:\Users\USERNAME\AppData\Local\Programs\Python\Python39\Lib\site-packages\BlenderMapDEM`
+
+![alt text](DEMO/imgs/step3-1.png "Copy renderDEM.py file")
+
+Then **paste** this file into Blender's `scripts/modules` folder so the `renderDEM()` function will be callable by Blender's python interpreter. By default (as of Blender 3.4 and on Windows) this folder is found here:
+
+`C:\Program Files\Blender Foundation\Blender 3.4\3.4\scripts\modules`
+
+![alt text](DEMO/imgs/step3-2 "Paste renderDEM.py file")
+
+
+#### Step 4: Using the Package
+To import this module into python scripts and use all its functions **EXCEPT** `renderDEM()`, add the following to your script.py:
 ```Python
-import BlenderMapDEM as dem
+# Import package
+from BlenderMapDEM import * # or: import BlenderMapDEM as dem
 
-# or
-
-from BlenderMapDEM import *
+# Example function call
+fetchDEM(north_bound = 50, south_bound = 49, east_bound = 81, west_bound = 80, API_Key = '8da2375367b589517231f8fee1ae6b7c', output_dir = './output_DEM_here.tif', dataset = 'SRTMGL1')
 ```
+
+
+To import the `renderDEM()` function and create a map using Blender, add the following to a script.py you feed to Blender (do not add anything else to this file):
+```Python
+# Import package (notice that we import renderDEM, not BlenderMapDEM, as that is the module added to Blenders module directory)
+from renderDEM import * # or: import renderDEM as dem
+
+# Example function call to generate map
+renderDEM(dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputRender.png', exaggeration = 0.5, shadow_softness = 75, sun_angle = 45, resolution_scale = 25, samples = 2)
+```
+
+
+For more information on using Blender to execute this script, see the [Blender Usage](#usage) section.
+
 <br/>
 
 ## 📦 Functions in this Module <a name = "functions"></a>
@@ -150,7 +195,7 @@ fetchDEM(north_bound = 50, south_bound = 49, east_bound = 81, west_bound = 80, A
 
 ### renderDEM() <a name = "render"></a>
 ```Python
-renderDEM(dem_dir, output_dir, exaggeration = 0.5, shadow_softeness = 90, sun_angle = 45, resolution_scale = 50, samples = 5)
+renderDEM(dem_dir, output_dir, exaggeration = 0.5, shadow_softness = 90, sun_angle = 45, resolution_scale = 50, samples = 5)
 ```
 
 Uses Blender to generate a 3D rendered hillshade map image using an input DEM image file.
@@ -253,15 +298,16 @@ simplifyDEM(dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputRender.png'
 <br/>
 
 ## 🗺️ Blender Usage <a name = "usage"></a>
-**IMPORTANT:** The following methods will render a map based on your python script using Blender's own python installation and interpreter. This means it does not have any packages installed other than its own default bpy package (and some others). There are likely ways around this that install outside packages into Blender however it is beyond the scope of this project. For this reason it is important that the script you feed into Blender to render your 3D map **ONLY contains your function call of renderDEM()** and your chosen argument parameters like this...
+**IMPORTANT:** The following methods will render a map based on your python script using Blender's own python installation and interpreter. This means it does not have any packages installed other than its own default bpy package (and some others). There are likely ways around this that install outside packages (like this one) into Blender easily however it is beyond the scope of this project. For this reason it is important that the script you feed into Blender to render your 3D map **ONLY contains your function call of renderDEM()** and your chosen argument parameters like this...
 
 
 Example script.py:
 ```Python
 # Script to render a 3D hillshade map in Blender
-import BlenderMapDEM
+from renderDEM import * # Note that we import renderDEM (NOT BlenderMapDEM)
 
-renderDEM(dem_dir = 'C:/Users/sebas/OneDrive/Desktop/DEM.tif', output_dir = 'C:/Users/sebas/OneDrive/Desktop/render.png', exaggeration = 0.5, shadow_softness = 50, sun_angle = 35, resolution_scale = 100, samples = 50)
+# Remember to replace USERNAME with your system username
+renderDEM(dem_dir = 'C:/Users/USERNAME/OneDrive/Desktop/DEM.tif', output_dir = 'C:/Users/USERNAME/OneDrive/Desktop/render.png', exaggeration = 0.5, shadow_softness = 50, sun_angle = 35, resolution_scale = 100, samples = 50)
 
 # End of script
 ```
