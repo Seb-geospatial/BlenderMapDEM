@@ -62,6 +62,15 @@ This module also requires an [OpenTopography API key](https://portal.opentopogra
 Then run the following command in your terminal:
 `pip install git+https://github.com/Seb-B-364/BlenderMapDEM.git`
 
+
+Then in your script.py:
+```Python
+import BlenderMapDEM as dem
+
+# or
+
+from BlenderMapDEM import *
+```
 <br/>
 
 ## 📦 Functions in this Module <a name = "functions"></a>
