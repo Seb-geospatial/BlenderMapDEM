@@ -119,3 +119,65 @@ def simplifyDEM(dem_dir: str, output_dir: str, reduction_factor: int = 2):
 
     # Save the downscaled image to a new file
     simplified_img.save(output_dir)
+
+# Convert .GeoTIFF to image file
+def geotiffToImage(dem_dir: str, output_dir: str):
+    """
+    Converts a GeoTIFF file (such as one gotten from OpenTopography) to a viewable image file.
+
+    Parameters:
+        dem_path (str): The path to the input DEM GeoTIFF file including file extension
+        output_path (str): The path to the output image file including file extension
+    """
+    
+    # Check for invalid characters in input and output directories
+    pattern = re.compile(r'[^a-zA-Z0-9_\-\\/.\s:]')
+    if pattern.search(dem_dir) or pattern.search(output_dir):
+        raise ValueError('Input or output directory contains invalid characters.')
+    
+    # Check for invalid input directory or filetype errors
+    if not os.path.exists(dem_dir):
+        raise ValueError(f'Input file path "{dem_dir}" does not exist.')
+    if not dem_dir.endswith(('.tif','.tiff')):
+        raise ValueError(f'Input file "{dem_dir}"" is not a valid .geotiff DEM file.')
+    
+    # Check for invalid output directory or filetype errors
+    output_dir_path = os.path.dirname(output_dir)
+    if not os.path.exists(output_dir_path):
+        raise ValueError(f'Output file path "{output_dir}" does not exist, please create it.')
+    if not output_dir.endswith(('.png','.bmp','.tif','.tiff')):
+        raise ValueError(f'Output file "{output_dir}" is not a valid image file.')  
+
+    # Open .geotiff file using rasterio
+    DEM = rasterio.open(dem_dir)
+    
+    # Read the data from DEM into numpy array
+    data = DEM.read()
+
+    # Get the metadata from DEM to be used in creating new output file
+    meta = DEM.meta.copy()
+
+    # Specify the output format for image and edit metadata
+    if output_dir.endswith('.png'):
+        file_type = 'PNG'
+    else:
+        file_type = 'JPEG'
+    
+    meta.update(dtype = 'uint8', driver = file_type)
+
+    # Scale the data to 0-255 range to comply with 8-bit output format
+    scale_factor = 255 / (data.max() - data.min())
+    scaled_data = (data - data.min()) * scale_factor
+    
+    # Make GDAL not create an annoying .aux file with output
+    os.environ['GDAL_PAM_ENABLED'] = 'NO'
+    
+    # Create output file
+    output = rasterio.open(output_dir, 'w', **meta)
+    
+    # Write DEM data to the output file
+    output.write(scaled_data.astype('uint8'))
+
+    # Close input and output files
+    DEM.close()
+    output.close()
