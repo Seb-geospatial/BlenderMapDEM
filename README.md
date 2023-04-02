@@ -70,7 +70,7 @@ At this point, all functions within this package **EXCEPT** `renderDEM()` can be
 The reason you cant use the `renderDEM()` function at this point is because it makes use of Blender's built in `bpy` package which will be run automatically when a script containing the `renderDEM()` function is fed into Blender using the GUI or terminal. You do not need to have this package installed on your system's python installation, it is already installed in Blender's.
 
 
-If you call this `renderDEM()` right now in a script you feed to Blender it will raise an import error because it doesnt know where that function is. To add it to Blender see the following step.
+If you call `renderDEM()` right now in a script you feed to Blender it will raise an error because it doesnt know where that function is. To add it to Blender see the following step.
 
 ### Step 3: Add renderDEM.py to Blender's Modules Folder
 Blender runs on an entirely separate python installation (based on python 3.7) and installing packages/modules with custom functions beyond its defaults can be tricky and tiresome as `pip` does not work natively.
@@ -79,7 +79,7 @@ Blender runs on an entirely separate python installation (based on python 3.7) a
 To get around this we can simply add the python file within this package containing the `renderDEM()` function to Blenders own modules folder. This will allow any script that is given to python containing `renderDEM()` to run without errors.
 
 
-First go to the directory this package was installed in to access its files and **copy** the `renderDEM.py` file. By default (on Windows as of python 3.9) this is found here:
+First go to the directory this package was installed in to access its files and **copy** the `renderDEM.py` file (alternatively you could download this repository as a zip file and copy the file from there). By default (on Windows as of python 3.9) this is found here:
 
 `C:\Users\USERNAME\AppData\Local\Programs\Python\Python39\Lib\site-packages\BlenderMapDEM`
 
