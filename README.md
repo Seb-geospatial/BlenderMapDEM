@@ -188,7 +188,7 @@ fetchDEM(north_bound = 50, south_bound = 49, east_bound = 81, west_bound = 80, A
 
 <br/>
 
-### geotiffToImage <a name = "toimage"></a>
+### geotiffToImage() <a name = "toimage"></a>
 ```Python
 geotiffToImage(dem_dir, output_dir)
 ```
@@ -319,7 +319,7 @@ renderDEM(dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputRender.png', 
 <br/>
 
 ## 🗺️ Blender Usage <a name = "usage"></a>
-**IMPORTANT:** The following methods will render a map based on your python script using Blender's own python installation and interpreter. This means it does not have any packages installed other than its own default bpy package (and some others). There are likely ways around this that install outside packages (like this one) into Blender easily however it is beyond the scope of this project. For this reason it is important that the script you feed into Blender to render your 3D map **ONLY contains your function call of renderDEM()** and your chosen argument parameters like this...
+**IMPORTANT:** The following methods will render a map based on your python script using Blender's own python installation and interpreter. This means it does not have any packages installed other than its own default bpy package (and some others). There are likely ways around this that install outside packages (like this one) into Blender easily however it is beyond the scope of this project. For this reason it is important that the script you feed into Blender to render your 3D map **ONLY contains your function call of `renderDEM()`** and your chosen argument parameters like this...
 
 
 Example script.py:
