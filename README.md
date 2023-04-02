@@ -7,14 +7,15 @@
 
 ---
  
-## 📝 Table of Contents
+## 📝 Table of Contents <a name = 'contents'</a>
 - [About](#about)
 - [Getting Started](#getting_started)
 - [Installation](#installation)
 - [Functions in this Module](#functions)
     - [fetchDEM()](#fetch)
-    - [renderDEM()](#render)
+    - [geotiffToImage](#toimage)
     - [simplifyDEM()](#simplify)
+    - [renderDEM()](#render)
 - [Blender Usage](#usage)
     - [Render from python script using terminal](#terminal)
     - [Render from python script using GUI](#gui)
@@ -40,7 +41,13 @@ A digital elevation model (DEM) is a 3D representation of a terrain's surface, c
     - [OpenTopography API key](https://portal.opentopography.org/lidarAuthorizationInfo?s=api)
     - Python 3.9
 
-This module requires an installation of **Blender**, a free and open-source 3D modelling software, in order to utilize the `renderDEM()` function. At the time of writing, this module is working as of Blender 3.4 (latest version) and can be downloaded [here](https://www.blender.org/download/).
+
+- Python dependencies:
+    - PIL
+    - requests
+    - rasterio
+
+This module requires an installation of **Blender**, a free and open-source 3D modelling software, in order to utilize the `renderDEM()` function. At the time of writing, this module is working as of Blender 3.5 (latest version) and can be downloaded [here](https://www.blender.org/download/).
 
 
 This module also requires an [OpenTopography API key](https://portal.opentopography.org/lidarAuthorizationInfo?s=api), obtained for free by creating an account with OpenTopography, in order to to utilize the `fetchDEM()` function. This must be done in order for the function to access the global DEM datasets hosted by OpenTopography through their API.
@@ -78,9 +85,9 @@ First go to the directory this package was installed in to access its files and 
 
 ![alt text](DEMO/imgs/step3-1.png "Copy renderDEM.py file")
 
-Then **paste** this file into Blender's `scripts/modules` folder so the `renderDEM()` function will be callable by Blender's python interpreter. By default (as of Blender 3.4 and on Windows) this folder is found here:
+Then **paste** this file into Blender's `scripts/modules` folder so the `renderDEM()` function will be callable by Blender's python interpreter. By default (as of Blender 3.5 and on Windows) this folder is found here:
 
-`C:\Program Files\Blender Foundation\Blender 3.4\3.4\scripts\modules`
+`C:\Program Files\Blender Foundation\Blender 3.5\3.5\scripts\modules`
 
 ![alt text](DEMO/imgs/step3-2.png "Paste renderDEM.py file")
 
@@ -113,6 +120,9 @@ For more information on using Blender to execute this script, see the [Blender U
 ## 📦 Functions in this Module <a name = "functions"></a>
 Below you will find documentation surrounding the functions featured in this module, their parameters, and usage examples.
 
+
+The functions are roughly organized in the order they would most likely be used in, if you wish to find a specific function refer to the [table of contents](#contents)
+
 ### fetchDEM() <a name = "fetch"></a>
 ```Python
 fetchDEM(north_bound, south_bound, east_bound, west_bound, API_Key, output_dir, dataset = 'SRTMGL1')
@@ -132,16 +142,16 @@ The resulting .GeoTIFF DEM image, while openable in GIS programs, cannot be open
 
 Parameters:
 - `north_bound: float` **Requires float**
-    - Latitude coordinate of the northern bound of your chosen DEM extent.
+    - Latitude coordinate of the northern bound of chosen DEM extent.
     - This value must be greater than `south_bound` in order to create a valid bounding box. Acceptable values range **between 90 and -90.**
 - `south_bound: float` **Requires float**
-    - Latitude coordinate of the southern bound of your chosen DEM extent.
+    - Latitude coordinate of the southern bound of chosen DEM extent.
     - This value must be less than `north_bound` in order to create a valid bounding box. Acceptable values range **between 90 and -90.**
 - `east_bound: float` **Requires float**
-    - Longitude coordinate of the eastern bound of your chosen DEM extent.
+    - Longitude coordinate of the eastern bound of chosen DEM extent.
     - This value must be greater than `west_bound` in order to create a valid bounding box. Acceptable values range **between 180 and -180.**
 - `west_bound: float` **Requires float**
-    - Longitude coordinate of the western bound of your chosen DEM extent.
+    - Longitude coordinate of the western bound of chosen DEM extent.
     - This value must be less than `east_bound` in order to create a valid bounding box. Acceptable values range **between 180 and -180.**
 - `API_Key: str` **Requires string**
     - OpenTopography API key, required for the function to fetch global DEM data made available by OpenTopography. Obtained free [here](https://portal.opentopography.org/lidarAuthorizationInfo?s=api).
@@ -178,12 +188,83 @@ fetchDEM(north_bound = 50, south_bound = 49, east_bound = 81, west_bound = 80, A
 
 <br/>
 
+### geotiffToImage <a name = "toimage"></a>
+```Python
+geotiffToImage(dem_dir, output_dir)
+```
+
+Converts a .geotiff file (such as one gotten from OpenTopography) to a viewable image file that can be imported by non-GIS programs such as Blender. This allows the user to not have to import the OpenTopography .geotiff DEM file into GIS software and then export it as a viewable rendered image.
+
+
+It is important to note that the resulting image is currently saved with **8-bit color depth**, meaning that elevation values stored in each pixel can exist in a range from 0-256. This is not ideal however the impacts to the image quality and the resulting 3D renders made from these images are extremely minimal.
+
+
+It is also important to note that this function outputs an image file that, while readable by image viewers and Blender, is devoid of all geospatial metadata. Use this function towards the end your workflow before `simplifyDEM()` and `renderDEM()` when such metadata is no longer needed to generate a map.
+
+
+Parameters:
+- `dem_dir: str` **Requires string**
+    - Directory of the input DEM .geotiff file including its .tif file extension. 
+    - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./DEM_here.tif` to select the DEM file in the directory it is called in.
+        - Example: `'absolute/path/to/DEM.tif'` or `./relative_path_to_DEM.tif`
+- `output_dir: str` **Requires string**
+    - Directory path of the output image file including file extension.
+    - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./output_here.tif` in order to save the output file in the directory it is called in.
+        - Example: `'absolute/path/to/output.png'` or `./relative_path_to_output.png`
+    - While all standard image formats are acceptable as output, **converting the image to .png** is highly recommended as it results in the best quality retention.
+    
+
+Usage example:
+```Python
+# The following code takes a non-viewable .geotiff DEM image and convert it into a viewable image that is readable by non-GIS programs such as Blender
+
+geotiffToImage(dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputImage.png')
+```
+
+<br/>
+
+### simplifyDEM() <a name = "simplify"></a>
+```Python
+simplifyDEM(dem_dir, output_dir, reduction_factor = 2)
+```
+
+Uses the PIL package to read in an input DEM image (of likely a high resolution) and output a down-sampled image with lower file size and resolution using a resample method appropriate for DEM maps. May be helpful depending on your DEM data source for easing resource requirements when rendering images in Blender.
+
+
+**NOTE:** this function currently does not work with .GeoTIFF files which contain geospatial metadata and must be opened in GIS programs, this method is intended to be used to prepare a viewable image file before it is imported into Blender to ease computational requirements on computers.
+
+
+Parameters:
+- `dem_dir: str` **Requires string**
+    - Directory of the input DEM image including its file extension. All standard image file types **except .jpg and .jpeg** are acceptable as input **including .tif/.tiff files**.
+    - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./DEM_here.tif` to select the DEM file in the directory it is called in.
+        - Example: `'absolute/path/to/DEM.tif'` or `./relative_path_to_DEM.tif`
+- `output_dir: str` **Requires string**
+    - Directory path of the outputted down-sampled image including its file extension. All standard image file types **except .jpg and .jpeg** are acceptable as output **including .tif/.tiff files**.
+    - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./output_here.tif` in order to save the output file in the directory it is called in.
+        - Example: `'absolute/path/to/output.tif'` or `./relative_path_to_output.tif`
+    - Note that the output file can be the same as the input file and the function will overwrite the input file with the new resolution. This may be convenient for keeping a clean working directory however is more destructive as changes to the file cannot be reverted.
+- `reduction_factor: int` **Requires integer and defaults to 2 (halves resolution)**
+    - Refers to the integer by which to divide the input DEM resolution by. A `reduction_factor = 4` will result in a down-sampled image with a quarter of the original resolution, whereas a `reduction_factor = 10` will result in a down-sampled image with a tenth of the original resolution.
+    - **Must be equal or greater than 2**
+    - Be gentle with the amount you reduce the resolution by, depending on the size of your input image, reducing the resolution by more than half could have negative impacts on its clarity in the final rendered image.
+
+
+Usage example:
+```Python
+# The following code reduces the resolution of the input DEM to be a quarter of its original
+
+simplifyDEM(dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputRender.png', reduction_factor = 4)
+```
+
+<br/>
+
 ### renderDEM() <a name = "render"></a>
 ```Python
 renderDEM(dem_dir, output_dir, exaggeration = 0.5, shadow_softness = 90, sun_angle = 45, resolution_scale = 50, samples = 5)
 ```
 
-Uses Blender to generate a 3D rendered hillshade map image using an input DEM image file.
+Uses Blender to generate a 3D rendered hillshade map image using an input DEM image file. The input DEM image must be viewable by non-GIS software, use `geotiffToImage()` to convert fetched DEM data into an image readable by Blender before using this function.
 
 
 **NOTE:** this function is intended to be run directly by Blender (either through the terminal or GUI), utilizing Blender's own python installation and `bpy` package. This function **WILL NOT WORK** if it is called from a script that is run by a normal python installation because it wont be able to use Blender's capabilities to render the image.
@@ -194,12 +275,13 @@ For more information on using Blender to execute this function, see the [Blender
 
 Parameters:
 - `dem_dir: str` **Requires string**
-    - Directory of the input DEM image including its file extension. All standard image file types are acceptable as input and readable by Blender, **including .tif/.tiff files**.
-    - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./DEM_here.tif` to select the DEM file in the directory it is called in.
-        - Example: `'absolute/path/to/DEM.tif'` or `./relative_path_to_DEM.tif`
+    - Directory of the input DEM image including its file extension. All standard image file types are acceptable, **including .tif/.tiff files**.
+    - Make sure to specify the absolute path of the input DEM image
+        - Example: `dem_dir = 'C:/Users/USERNAME/Desktop/DEM.tif'`
 - `output_dir: str` **Requires string**
-    - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./output_here.tif` in order to save the output file in the directory it is called in.
-        - Example: `'absolute/path/to/output.tif'` or `./relative_path_to_output.tif`
+    - Directory of the output rendered map including its file extension. All standard image file types are acceptable, **including .tif/.tiff files**.
+    - Make sure to specify the absolute path of the output rendered map
+        - Example: `output_dir = 'C:/Users/USERNAME/Desktop/render.png'`
 - `exaggeration: float` **Requires float and defaults to 0.5**
     - Level of topographic exaggeration to be applied to 3D plane based on input DEM. Higher values will result in "spiky" terrain and darker crevices between landforms when viewed from above.
     - Generally values between 0.3 (relatively flat) to 1 (very spiky) produce good maps however there is no limit to how high this value can go
@@ -236,42 +318,6 @@ renderDEM(dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputRender.png', 
 
 <br/>
 
-### simplifyDEM() <a name = "simplify"></a>
-```Python
-simplifyDEM(dem_dir, output_dir, reduction_factor = 2)
-```
-
-Uses the PIL package to read in an input DEM image (of likely a high resolution) and output a down-sampled image with lower file size and resolution using a resample method appropriate for DEM maps. May be helpful depending on your DEM data source for easing resource requirements when rendering images in Blender.
-
-
-**NOTE:** this function currently does not work with .GeoTIFF files which contain geospatial metadata, this method is intended to be used to prepare a file before it is imported into Blender to ease computational requirements on computers.
-
-
-Parameters:
-- `dem_dir: str` **Requires string**
-    - Directory of the input DEM image including its file extension. All standard image file types **except .jpg and .jpeg** are acceptable as input **including .tif/.tiff files**.
-    - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./DEM_here.tif` to select the DEM file in the directory it is called in.
-        - Example: `'absolute/path/to/DEM.tif'` or `./relative_path_to_DEM.tif`
-- `output_dir: str` **Requires string**
-    - Directory path of the outputted down-sampled image including its file extension. All standard image file types **except .jpg and .jpeg** are acceptable as output **including .tif/.tiff files**.
-    - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./output_here.tif` in order to save the output file in the directory it is called in.
-        - Example: `'absolute/path/to/output.tif'` or `./relative_path_to_output.tif`
-    - Note that the output file can be the same as the input file and the function will overwrite the input file with the new resolution. This may be convenient for keeping a clean working directory however is more destructive as changes to the file cannot be reverted.
-- `reduction_factor: int` **Requires integer and defaults to 2 (halves resolution)**
-    - Refers to the integer by which to divide the input DEM resolution by. A `reduction_factor = 4` will result in a down-sampled image with a quarter of the original resolution, whereas a `reduction_factor = 10` will result in a down-sampled image with a tenth of the original resolution.
-    - **Must be equal or greater than 2**
-    - Be gentle with the amount you reduce the resolution by, depending on the size of your input image, reducing the resolution by more than half could have negative impacts on its clarity in the final rendered image.
-
-
-Usage example:
-```Python
-# The following code reduces the resolution of the input DEM to be a quarter of its original
-
-simplifyDEM(dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputRender.png', reduction_factor = 4)
-```
-
-<br/>
-
 ## 🗺️ Blender Usage <a name = "usage"></a>
 **IMPORTANT:** The following methods will render a map based on your python script using Blender's own python installation and interpreter. This means it does not have any packages installed other than its own default bpy package (and some others). There are likely ways around this that install outside packages (like this one) into Blender easily however it is beyond the scope of this project. For this reason it is important that the script you feed into Blender to render your 3D map **ONLY contains your function call of renderDEM()** and your chosen argument parameters like this...
 
@@ -294,7 +340,7 @@ Rendering your DEM map from the terminal is both more resource efficient and qui
 
 
 - If Blender is not added to your PATH:
-    - In your terminal navigate to your Blender installation directory that contains your Blender.exe file. On Windows this defaults to: `C:\Program Files\Blender Foundation\Blender 3.4` as of Blender 3.4.
+    - In your terminal navigate to your Blender installation directory that contains your Blender.exe file. On Windows this defaults to: `C:\Program Files\Blender Foundation\Blender 3.5` as of Blender 3.5.
     - To run a python script which contains the renderDEM() function, input `./Blender.exe --background --python path/to/script.py` into your terminal (working on Git Bash, syntax for executing applications from the terminal may differ slightly between terminal clients).
     - This will render a DEM image to the directory specified in your renderDEM() function WITHOUT opening Blender's GUI.
 
