@@ -4,6 +4,18 @@ import os
 
 # Generate 3D elevation map using Blender's bpy package
 def renderDEM(dem_dir: str, output_dir: str, exaggeration: float = 0.5, shadow_softness: float = 90, sun_angle: float = 45, resolution_scale: int = 50, samples: int = 5):
+    """
+    Uses Blender in order to render a hillshade map using DEM image as input
+
+    Parameters:
+        dem_dir (string): The path to the input DEM image including file extension
+        output_dir (string): The path to the output rendered image file including file extension
+        exaggeration (float): Level of topographic exaggeration to be applied to 3D plane based on input DEM
+        shadow_softness (int): Softness of shadows with values ranging from 0-180
+        sun_angle (float): Vertical angle of sun's rays that lights the map
+        resolution_scale (int): Scale of the rendered image resolution in relation to the input DEM resolution in percentage
+        samples (int): Amount of samples to be used in the final render determining its quality
+    """
     
         ### --- Catch a variety of user-input errors --- ###
     

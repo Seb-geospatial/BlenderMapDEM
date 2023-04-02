@@ -6,6 +6,18 @@ import re
 
 # Fetch DEM .GeoTIFF image of user specified extent
 def fetchDEM(north_bound: float, south_bound: float, east_bound: float, west_bound: float, API_Key: str, output_dir: str, dataset: str = 'SRTMGL1'):
+    """
+    Uses the OpenTopography API in order to fetch a .GeoTIFF raster image containing DEM of chosen extent
+
+    Parameters:
+        north_bound (float): Latitude coordinate of the northern bound of chosen DEM extent
+        south_bound (float): Latitude coordinate of the southern bound of chosen DEM extent
+        east_bound (float): Longitude coordinate of the eastern bound of chosen DEM extent
+        west_bound (float): Longitude coordinate of the western bound of chosen DEM extent
+        API_Key (string): OpenTopography API key that is needed to fetch data
+        output_dir (string): The path to the output image file including file extension
+    """
+
     # Declare possible DEM datasets
     possible_datasets = ['SRTMGL3',
                          'SRTMGL1',
@@ -79,7 +91,15 @@ def fetchDEM(north_bound: float, south_bound: float, east_bound: float, west_bou
 
 # Simplify DEM image to a lower resolution
 def simplifyDEM(dem_dir: str, output_dir: str, reduction_factor: int = 2):
-    
+    """
+    Downsamples DEM image to lower resolution
+
+    Parameters:
+        dem_dir (string): The path to the input DEM image file including file extension
+        output_dir (string): The path to the output image file including file extension
+        reduction_factor (int): Number by which to divide resolution by
+    """
+
     ### --- Catch a variety of user-input errors --- ###
     
     # Check for invalid characters in input and output directories
@@ -126,8 +146,8 @@ def geotiffToImage(dem_dir: str, output_dir: str):
     Converts a GeoTIFF file (such as one gotten from OpenTopography) to a viewable image file.
 
     Parameters:
-        dem_path (str): The path to the input DEM GeoTIFF file including file extension
-        output_path (str): The path to the output image file including file extension
+        dem_dir (string): The path to the input DEM GeoTIFF file including file extension
+        output_dir (string): The path to the output image file including file extension
     """
     
     # Check for invalid characters in input and output directories
