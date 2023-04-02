@@ -3,6 +3,7 @@ from PIL import Image
 import requests
 import os
 import re
+import rasterio
 
 # Fetch DEM .GeoTIFF image of user specified extent
 def fetchDEM(north_bound: float, south_bound: float, east_bound: float, west_bound: float, API_Key: str, output_dir: str, dataset: str = 'SRTMGL1'):
