@@ -1,6 +1,6 @@
 <p align="center">
   <a href="" rel="noopener">
- <img width=200px height=200px src="https://i.imgur.com/6wj0hh6.jpg" alt="Project logo"></a>
+ <img width=200px height=200px src="demo/data/Barbados_rendered.png" alt="Project logo"></a>
 </p>
 
 <h1 align="center">Blender DEM Visualization Toolkit</h3>
@@ -13,6 +13,8 @@
 - [Installation](#installation)
 - [Functions in this Module](#functions)
     - [fetchDEM()](#fetch)
+    - [plotDEM()](#plot)
+    - [describeDEM()](#describe)
     - [geotiffToImage](#toimage)
     - [simplifyDEM()](#simplify)
     - [renderDEM()](#render)
@@ -53,7 +55,7 @@ This module requires an installation of **Blender**, a free and open-source 3D m
 This module also requires an [OpenTopography API key](https://portal.opentopography.org/lidarAuthorizationInfo?s=api), obtained for free by creating an account with OpenTopography, in order to to utilize the `fetchDEM()` function. This must be done in order for the function to access the global DEM datasets hosted by OpenTopography through their API.
 
 
-Please refer to the `demo/` folder of this repository, [located here](), for a guided workflow demonstration using the functions of this package. You can also find example python scripts as well as example DEM data in order to better understand how to use these functions.
+Please refer to the `demo/` folder of this repository to view a [guided workflow demonstration](https://github.com/Seb-B-364/BlenderMapDEM/blob/main/demo/demonstration.ipynb) using the functions of this package in the form of a jupyter notebook. You can also find example python scripts as well as example DEM data in order to better understand how to use these functions.
 
 <br/>
 
@@ -88,13 +90,13 @@ First go to the directory this package was installed in to access its files and 
 
 `C:\Users\USERNAME\AppData\Local\Programs\Python\Python39\Lib\site-packages\BlenderMapDEM`
 
-![alt text](DEMO/imgs/step3-1.png "Copy renderDEM.py file")
+![alt text](demo/imgs/step3-1.png "Copy renderDEM.py file")
 
 Then **paste** this file into Blender's `scripts/modules` folder so the `renderDEM()` function will be callable by Blender's python interpreter. By default (as of Blender 3.5 and on Windows) this folder is found here:
 
 `C:\Program Files\Blender Foundation\Blender 3.5\3.5\scripts\modules`
 
-![alt text](DEMO/imgs/step3-2.png "Paste renderDEM.py file")
+![alt text](demo/imgs/step3-2.png "Paste renderDEM.py file")
 
 
 ### Step 4: Using the Package
@@ -203,7 +205,7 @@ Plots an input DEM .geotiff file using rasterio and matplotlib.
 
 Parameters:
 - `geotiff_dir: str` **Requires string**
-    - The path to the input DEM .geotiff file including file extension 
+    - The path to the input DEM .geotiff file including file extension.
     - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./DEM_here.tif` to select the DEM file in the directory it is called in.
         - Example: `'absolute/path/to/DEM.tif'` or `./relative_path_to_DEM.tif`
 - `histogram: bool` **Requires boolean and defaults to true**
@@ -213,7 +215,7 @@ Parameters:
     - The default grey colormap is how this file will be saved and inputted into Blender or other programs.
     - Any matplotlib cmap string can be used, however it is recommended to use the reverse version for most colormaps (specified by adding `_r` to the end of the string) so that lighter values are attributed to higher elevations.
 - `plot_title: str` **Requires string and defaults to 'DEM Map'**
-    - Specifies the title for plot
+    - Specifies the title for plot.
 
 
 Usage example:
@@ -230,11 +232,11 @@ plotDEM(geotiff_dir = 'path/to/input/DEM.tif', histogram = True, colormap = 'Gre
 plotDEM(geotiff_dir, histogram = True, colormap = 'Greys_r', plot_title = 'DEM Map')
 ```
 
-Returns a dictionary including important geospatial information about an input .geotiff DEM
+Returns a dictionary including important geospatial information about an input .geotiff DEM.
 
 Parameters:
 - `geotiff_dir: str` **Requires string**
-    - Input directory of .geotiff DEM file to return information based on
+    - Input directory of .geotiff DEM file to return information based on.
 
 
 Usage example:
