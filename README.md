@@ -1,6 +1,6 @@
 <p align="center">
   <a href="" rel="noopener">
- <img width=200px height=200px src="demo/data/Barbados_rendered.png" alt="Project logo"></a>
+ <img width=30% height=30% src="demo/data/Barbados_render.png"></a>
 </p>
 
 <h1 align="center">Blender DEM Visualization Toolkit</h3>
