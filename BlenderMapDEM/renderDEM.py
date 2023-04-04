@@ -1,4 +1,9 @@
-import bpy
+# Attempt to import packages, raise error if not being run by Blender
+try:
+    import bpy
+except:
+    raise ModuleNotFoundError('This function must be run by Blender, it cannot run in a normal python environment')
+
 import re
 import os
 
