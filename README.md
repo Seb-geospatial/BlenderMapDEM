@@ -7,7 +7,7 @@
 
 ---
  
-## 📝 Table of Contents <a name = 'contents'</a>
+## 📝 Table of Contents <a name = 'contents'></a>
 - [About](#about)
 - [Getting Started](#getting_started)
 - [Installation](#installation)
@@ -128,7 +128,7 @@ For more information on using Blender to execute this script, see the [Blender U
 Below you will find documentation surrounding the functions featured in this module, their parameters, and usage examples.
 
 
-The functions are roughly organized in the order they would most likely be used in, if you wish to find a specific function refer to the [table of contents](#contents)
+The functions are roughly organized in the order they would most likely be used in, if you wish to find a specific function refer to the [table of contents](#contents).
 
 ### fetchDEM() <a name = "fetch"></a>
 ```Python
