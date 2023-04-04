@@ -147,7 +147,7 @@ def plotDEM (geotiff_dir: str, histogram: bool = True, colormap: str = 'Greys_r'
 # Describe DEM map
 def describeDEM(geotiff_dir: str) -> dict:
     """
-    Returns a dictionary including important geospatial imformation about an input .geotiff DEM
+    Returns a dictionary including important geospatial information about an input .geotiff DEM
 
     Parameters:
         geotiff_dir (str): Input directory of .geotiff DEM file
