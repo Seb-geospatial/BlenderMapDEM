@@ -90,6 +90,58 @@ def fetchDEM(north_bound: float, south_bound: float, east_bound: float, west_bou
         else:
             raise error
 
+# Create 2D plot of DEM .geotiff file
+def plotDEM (geotiff_dir: str, histogram: bool = True, colormap: str = 'Greys_r', plot_title: str = 'DEM Map'):
+    """
+    Plots the DEM .geotiff file using rasterio and matplotlib
+    
+    Parameters":
+        geotiff_dir (str): The path to the input DEM GeoTIFF file including file extension
+        histogram (bool): If True, will plot a historgram of elevation values alongside base plot
+        colormap (str): Define matplotlib cmap to use for plotting
+        plot_title (str): Title for plot
+    """
+    
+        ### --- Catch a variety of user-input errors --- ###
+    
+    # Check for invalid characters in input directory
+    pattern = re.compile(r'[^a-zA-Z0-9_\-\\/.\s:]')
+    if pattern.search(geotiff_dir):
+        raise ValueError('Geotiff directory contains invalid characters.')
+    
+    # Check for invalid input directory or filetype errors
+    if not os.path.exists(geotiff_dir):
+        raise ValueError(f'Input file path "{geotiff_dir}" does not exist.')
+    if not geotiff_dir.endswith(('.tif','.tiff')):
+        raise ValueError(f'Input file "{geotiff_dir}"" is not a valid .geotiff DEM file.')
+    
+    # Check for invalid plot_title data type
+    if type(plot_title) != str:
+        raise ValueError('Plot title specified was not a string, please input a string for the title.')
+    
+        ### --- Create plot of .geotiff DEM --- ###
+        
+    # Read in DEM from geotiff_dir
+    DEM = rasterio.open(geotiff_dir)
+    
+    # Create plot
+    fig, ax = plt.subplots()
+    
+    # Set colorbar
+    color_data = ax.imshow(DEM.read()[0], cmap = colormap)
+    bar = fig.colorbar(color_data, ax=ax)
+    bar.set_label('Pixel Value')
+
+    # Set axis labels
+    ax.set_xlabel("Longitude")
+    ax.set_ylabel("Latitude")
+
+    # Show plot of DEM data
+    rasterio.plot.show(DEM,
+                       ax=ax,
+                       title = plot_title,
+                       cmap = colormap)
+
 # Simplify DEM image to a lower resolution
 def simplifyDEM(dem_dir: str, output_dir: str, reduction_factor: int = 2):
     """
@@ -147,8 +199,8 @@ def geotiffToImage(dem_dir: str, output_dir: str):
     Converts a GeoTIFF file (such as one gotten from OpenTopography) to a viewable image file.
 
     Parameters:
-        dem_dir (string): The path to the input DEM GeoTIFF file including file extension
-        output_dir (string): The path to the output image file including file extension
+        dem_path (str): The path to the input DEM GeoTIFF file including file extension
+        output_path (str): The path to the output image file including file extension
     """
     
     # Check for invalid characters in input and output directories
