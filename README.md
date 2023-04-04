@@ -15,7 +15,7 @@
     - [fetchDEM()](#fetch)
     - [plotDEM()](#plot)
     - [describeDEM()](#describe)
-    - [geotiffToImage](#toimage)
+    - [geotiffToImage()](#toimage)
     - [simplifyDEM()](#simplify)
     - [renderDEM()](#render)
 - [Blender Usage](#usage)
@@ -55,7 +55,7 @@ This module requires an installation of **Blender**, a free and open-source 3D m
 This module also requires an [OpenTopography API key](https://portal.opentopography.org/lidarAuthorizationInfo?s=api), obtained for free by creating an account with OpenTopography, in order to to utilize the `fetchDEM()` function. This must be done in order for the function to access the global DEM datasets hosted by OpenTopography through their API.
 
 
-Please refer to the `demo/` folder of this repository to view a [guided workflow demonstration](https://github.com/Seb-B-364/BlenderMapDEM/blob/main/demo/demonstration.ipynb) using the functions of this package in the form of a jupyter notebook. You can also find example python scripts as well as example DEM data in order to better understand how to use these functions.
+Please refer to the `demo/` folder of this repository to view a [guided workflow demonstration](demo/demonstration_workbook.ipynb) using the functions of this package in the form of a jupyter notebook. You can also find example python scripts as well as example DEM data in order to better understand how to use these functions.
 
 <br/>
 
