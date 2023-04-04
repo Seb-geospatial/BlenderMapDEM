@@ -4,6 +4,8 @@ import requests
 import os
 import re
 import rasterio
+from rasterio.plot import show, show_hist
+import matplotlib.pyplot as plt
 
 # Fetch DEM .GeoTIFF image of user specified extent
 def fetchDEM(north_bound: float, south_bound: float, east_bound: float, west_bound: float, API_Key: str, output_dir: str, dataset: str = 'SRTMGL1'):
@@ -141,6 +143,37 @@ def plotDEM (geotiff_dir: str, histogram: bool = True, colormap: str = 'Greys_r'
                        ax=ax,
                        title = plot_title,
                        cmap = colormap)
+
+# Describe DEM map
+def describeDEM(geotiff_dir: str) -> dict:
+    """
+    Returns a dictionary including important geospatial imformation about an input .geotiff DEM
+
+    Parameters:
+        geotiff_dir (str): Input directory of .geotiff DEM file
+    """
+    # Open .geotiff file using rasterio
+    DEM = rasterio.open(geotiff_dir)
+    
+    # Read the data from DEM into numpy array
+    data = DEM.read()
+    
+    # Declare dictionary to hold DEM information
+    information = {}
+    
+    # Get min and max elevation pixel values
+    minimum_elevation = data.min()
+    information['min pixel value'] = minimum_elevation
+    
+    maximum_elevation = data.max()
+    information['max pixel value'] = maximum_elevation
+    
+    # Get coordinates for corners of DEM
+    
+    # Get CRS
+    
+    
+    return information
 
 # Simplify DEM image to a lower resolution
 def simplifyDEM(dem_dir: str, output_dir: str, reduction_factor: int = 2):
