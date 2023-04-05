@@ -6,6 +6,7 @@ import re
 import rasterio
 from rasterio.plot import show, show_hist
 import matplotlib.pyplot as plt
+import subprocess
 
 # Fetch DEM .GeoTIFF image of user specified extent
 def fetchDEM(north_bound: float, south_bound: float, east_bound: float, west_bound: float, API_Key: str, output_dir: str, dataset: str = 'SRTMGL1'):
@@ -287,3 +288,21 @@ def geotiffToImage(dem_dir: str, output_dir: str):
     # Close input and output files
     DEM.close()
     output.close()
+
+def renderDEM_subprocess(blender_dir: str, dem_dir: str, output_dir: str, exaggeration: float = 0.5, shadow_softness: float = 90, sun_angle: float = 45, resolution_scale: int = 50, samples: int = 5):
+    """
+    Uses the subprocess package to open and run Blender off a python expression containing renderDEM()
+
+    Parameters:
+        blender_dir (str): Directory of blender.exe found in Blender's installation folder
+        dem_dir (string): The path to the input DEM image including file extension
+        output_dir (string): The path to the output rendered image file including file extension
+        exaggeration (float): Level of topographic exaggeration to be applied to 3D plane based on input DEM
+        shadow_softness (int): Softness of shadows with values ranging from 0-180
+        sun_angle (float): Vertical angle of sun's rays that lights the map
+        resolution_scale (int): Scale of the rendered image resolution in relation to the input DEM resolution in percentage
+        samples (int): Amount of samples to be used in the final render determining its quality
+    """
+
+    subprocess.run(f"{blender_dir} --background --python-expr \"from renderDEM import *; renderDEM(dem_dir = '{dem_dir}', output_dir = '{output_dir}', exaggeration = {exaggeration}, shadow_softness = {shadow_softness}, sun_angle = {sun_angle}, resolution_scale = {resolution_scale}, samples = {samples})\"")
+    
