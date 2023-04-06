@@ -71,8 +71,9 @@ Begin by first downloading [Blender](https://www.blender.org/download/) as well 
 ### Step 2: Install Package Through Git
 Then, to install this module, run the following command in your terminal:
 
-`pip install git+https://github.com/Seb-B-364/BlenderMapDEM.git`
-
+```bash
+pip install git+https://github.com/Seb-B-364/BlenderMapDEM.git
+```
 
 At this point, all functions within this package **EXCEPT** `renderDEM()` can be used in your own python developer environment. You should now have the ability to fetch and work with DEM data.
 
@@ -136,18 +137,22 @@ The functions are roughly organized in the order they would most likely be used 
 
 Again, please refer to the [guided workflow demonstration](demo/demonstration_workbook.ipynb) for a guide on how these functions can be used together to create hillshade maps in Blender.
 
+<br/>
 
 | **Function**             | **Returns**            | **Description**                                                                                                                  |
 |--------------------------|------------------------|----------------------------------------------------------------------------------------------------------------------------------|
 | `fetchDEM()`             | None                   | Fetches and saves .GeoTIFF raster image containing DEM data for any specified extent                                             |
 | `plotDEM()`              | Matplotlib plot        | Plots an input DEM .geotiff file using rasterio and matplotlib                                                                   |
 | `describeDEM()`          | Dictionary of DEM info | Returns a dictionary including important geospatial information about an input .geotiff DEM                                      |
+| `clipDEM()`              | None                   | Clips a .geotiff DEM raster image according to a shapefile boundary and sets all pixels outside the boundary to 0 height value.  |
+| `reprojectDEM()`         | None                   | Reprojects an input .geotiff DEM file to a new                                                                                   |
 | `geotiffToImage()`       | None                   | Converts and saves a .geotiff file to a viewable image file that can be imported by non-GIS programs such as Blender             |
 | `simplifyDEM()`          | None                   | Downsamples an input DEM image to a lower resolution to ease computing requirements                                              |
 | `renderDEM()`            | None                   | Uses Blender to generate a 3D rendered hillshade map using an input DEM image                                                    |
-| `renderDEM_subprocess()` | None                   | Uses the subprocess package to start Blender and render a 3D hillshade map using the `renderDEM()` function from within a python |
+| `renderDEM_subprocess()` | None                   | Uses the subprocess package to start Blender and render a 3D hillshade map using the `renderDEM()` function from within a python script |
 |                          |                        |                                                                                                                                  |
 |                          |                        |                                                                                                                                  |
+
 <br/>
 
 ### fetchDEM() <a name = "fetch"></a>
@@ -155,10 +160,10 @@ Again, please refer to the [guided workflow demonstration](demo/demonstration_wo
 fetchDEM(north_bound, south_bound, east_bound, west_bound, API_Key, output_dir, dataset = 'SRTMGL1')
 ```
 
-Uses the OpenTopography API in order to fetch a .GeoTIFF raster image containing DEM metadata for your specified extent that can then be opened using GIS programs. Fetching data may take a few minutes depending on size of request.
+Uses the OpenTopography API in order to fetch a .GeoTIFF raster image containing DEM data for your specified extent that can then be opened using GIS programs. Fetching data may take a few minutes depending on size of request, this function works best for small extents.
 
 
-It is important to note that each dataset has limitations on the amount of area it can retrieve, and that fetching DEM data of a very large extent may result in long query times. Requests are limited to 500,000,000 km2 for GEDI L3, 125,000,000 km2 for SRTM15+ V2.1, 4,050,000 km2 for SRTM GL3, COP90 and 450,000 km2 for all other data.
+It is important to note that each dataset has limitations on the amount of area it can retrieve, and that fetching DEM data of a very large extent may result in extremely long query times. Requests are limited to 500,000,000 km2 for GEDI L3, 125,000,000 km2 for SRTM15+ V2.1, 4,050,000 km2 for SRTM GL3, COP90 and 450,000 km2 for all other data.
 
 
 The resulting .GeoTIFF DEM image, while openable in GIS programs, cannot be opened directly by a standard image viewer or Blender. This is so other geospatial operations can be performed on the DEM before it is imported into Blender using its geographic metadata.
@@ -187,7 +192,6 @@ Parameters:
     - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./output_here.tif` in order to save the output file in the directory it is called in.
         - Example: `'absolute/path/to/output.tif'` or `./relative_path_to_output.tif`
 - `dataset: str` **Requires string and defaults to 'SRTMGL1'** 
-
     - Specifies the global raster DEM dataset hosted on OpenTopography to fetch data from.
     - Different datasets have different coverage, quality, cell resolution, or fetchable area limitations. In general, `'SRTMGL3'` (90m cell resolution) and `'SRTMGL1'` (30m cell resolution) are very high quality and widely used.
     - Available DEM datasets:
@@ -270,7 +274,7 @@ describeDEM(geotiff_dir = 'path/to/input/DEM.tif')
 
 ### geotiffToImage() <a name = "toimage"></a>
 ```Python
-geotiffToImage(dem_dir, output_dir)
+geotiffToImage(geotiff_dir, output_dir)
 ```
 
 Converts a .geotiff file (such as one gotten from OpenTopography) to a viewable image file that can be imported by non-GIS programs such as Blender. This allows the user to not have to import the OpenTopography .geotiff DEM file into GIS software and then export it as a viewable rendered image.
@@ -283,7 +287,7 @@ It is also important to note that this function outputs an image file that, whil
 
 
 Parameters:
-- `dem_dir: str` **Requires string**
+- `geotiff_dir: str` **Requires string**
     - Directory of the input DEM .geotiff file including its .tif file extension. 
     - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./DEM_here.tif` to select the DEM file in the directory it is called in.
         - Example: `'absolute/path/to/DEM.tif'` or `./relative_path_to_DEM.tif`
@@ -298,7 +302,7 @@ Usage example:
 ```Python
 # The following code takes a non-viewable .geotiff DEM image and convert it into a viewable image that is readable by non-GIS programs such as Blender
 
-geotiffToImage(dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputImage.png')
+geotiffToImage(geotiff_dir = 'path/to/dem.tif', output_dir = 'path/to/outputImage.png')
 ```
 
 <br/>
