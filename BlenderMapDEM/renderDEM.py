@@ -24,6 +24,22 @@ def renderDEM(dem_dir: str, output_dir: str, exaggeration: float = 0.5, shadow_s
     
         ### --- Catch a variety of user-input errors --- ###
     
+    # Check for invalid input parameter datatypes
+    if type(dem_dir) != str:
+        raise TypeError('dem_dir is not of type string, please input a string.')
+    elif type(output_dir) != str:
+        raise TypeError('output_dir is not of type string, please input a string.')
+    elif type(exaggeration) != float:
+        raise TypeError('exaggeration is not of type float, please input a float.')
+    elif type(shadow_softness) != float:
+        raise TypeError('shadow_softness is not of type float, please input a float.')
+    elif type(sun_angle) != float:
+        raise TypeError('sun_angle is not of type float, please input a float.')
+    elif type(resolution_scale) != int:
+        raise TypeError('resolution_scale is not of type int, please input a int.')
+    elif type(samples) != int:
+        raise TypeError('samples is not of type int, please input a int.')
+
     # Check for invalid characters in input and output directories
     pattern = re.compile(r'[^a-zA-Z0-9_\-\\/.\s:]')
     if pattern.search(dem_dir) or pattern.search(output_dir):
