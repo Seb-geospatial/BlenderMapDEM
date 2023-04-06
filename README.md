@@ -338,6 +338,9 @@ Uses Blender to generate a 3D rendered hillshade map image using an input DEM im
 **NOTE:** this function is intended to be run directly by Blender (either through the terminal or GUI), utilizing Blender's own python installation and `bpy` package. This function **WILL NOT WORK** if it is called from a script that is run by a normal python installation because it wont be able to use Blender's capabilities to render the image.
 
 
+Use `renderDEM_subprocess()` instead if you wish to open Blender and render the DEM image from within a python script.
+
+
 For more information on using Blender to execute this function, see the [Blender Usage](#usage) section.
 
 
@@ -352,7 +355,7 @@ Parameters:
         - Example: `output_dir = 'C:/Users/USERNAME/Desktop/render.png'`
 - `exaggeration: float` **Requires float and defaults to 0.5**
     - Level of topographic exaggeration to be applied to 3D plane based on input DEM. Higher values will result in "spiky" terrain and darker crevices between landforms when viewed from above.
-    - Generally values between 0.3 (relatively flat) to 1 (very spiky) produce good maps however there is no limit to how high this value can go
+    - Generally values between 0.3 (relatively flat) to 1 (very spiky) produce good maps however there is no limit to how high this value can go.
     - Note that negative values are possible and will reverse the direction the terrain is exaggerated, "carving" the landscape underground.
 - `shadow_softness: float` **Requires float and defaults to 90 (relatively soft)**
     - This value specifically refers to the angular diameter of the sun's light source however functionally it can be understood as shadow softness.
@@ -391,16 +394,13 @@ renderDEM(dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputRender.png', 
 renderDEM_subprocess(blender_dir, dem_dir, output_dir, exaggeration = 0.5, shadow_softness = 90, sun_angle = 45, resolution_scale = 50, samples = 5)
 ```
 
-Uses Blender and the subprocess package to render a 3D hillshade map using the `renderDEM()` function from within a python script
+Uses Blender and the subprocess package to render a 3D hillshade map using the `renderDEM()` function from within a python script. This function removes the need to run Blender manually, either through the terminal or GUI, in order to generate a rendered hillshade map using an input DEM.
 
 
-This function removes the need to run Blender manually, either through the terminal or GUI, in order to generate a rendered hillshade map using an input DEM.
+The only difference between this function and the `renderDEM()` function is the introduction of an additional parameter `blender_dir` which points to the `blender.exe` file found in the installation directory of Blender. **All other parameters are identical to `renderDEM()` in usage, including the need to specify absolute paths to the input DEM and output rendered image.**
 
 
-The only difference between this function and the `renderDEM()` function is the introduction of an additional parameter `blender_dir` which points to the `blender.exe` file found in the installation directory of Blender.
-
-
-**All other parameters are identical to `renderDEM()` in usage, including the need to specify absolute paths to the input DEM and output rendered image.**
+For more information on using Blender to execute this function, see the [Blender Usage](#subprocessguide) section.
 
 
 Parameters:
@@ -408,14 +408,14 @@ Parameters:
     - Absolute path to the `blender.exe` file found in the installation directory of Blender.
     - This is essentially the terminal command you would otherwise need to input to launch Blender from the terminal. This means that if Blender is added to your PATH, this parameter can be set to just "`blender`".
     - By default (as of Blender 3.5 and on Windows) this path is found here:
-        - `C:/Program Files/Blender Foundation/Blender 3.4/blender.exe`
+        - `C:/Program Files/Blender Foundation/Blender 3.5/blender.exe`
 - `output_dir: str` **Requires string**
     - Directory of the output rendered map including its file extension. All standard image file types are acceptable, **including .tif/.tiff files**.
     - Make sure to specify the absolute path of the output rendered map
         - Example: `output_dir = 'C:/Users/USERNAME/Desktop/render.png'`
 - `exaggeration: float` **Requires float and defaults to 0.5**
     - Level of topographic exaggeration to be applied to 3D plane based on input DEM. Higher values will result in "spiky" terrain and darker crevices between landforms when viewed from above.
-    - Generally values between 0.3 (relatively flat) to 1 (very spiky) produce good maps however there is no limit to how high this value can go
+    - Generally values between 0.3 (relatively flat) to 1 (very spiky) produce good maps however there is no limit to how high this value can go.
     - Note that negative values are possible and will reverse the direction the terrain is exaggerated, "carving" the landscape underground.
 - `shadow_softness: float` **Requires float and defaults to 90 (relatively soft)**
     - This value specifically refers to the angular diameter of the sun's light source however functionally it can be understood as shadow softness.
@@ -449,9 +449,11 @@ renderDEM(blender_dir = 'path/to/blender.exe', dem_dir = 'path/to/dem.tif', outp
 
 ## 🗺️ Blender Usage <a name = "usage"></a>
 There are a variety of ways to use Blender to run python scripts. Below you will find three possible ways to run Blender off a python script:
-    - Option 1 **(RECOMMENDED)**: Using `renderDEM_subprocess()` to run Blender from within a python file.
-    - Option 2: Running Blender through the terminal off a python script containing a `renderDEM()` function call using command line arguments.
-    - Option 3: Running the standard Blender GUI to open and run a python script containing a `renderDEM()` function call using the "Scripting" workspace.
+    
+
+- Option 1 **(RECOMMENDED)**: Using `renderDEM_subprocess()` to run Blender from within a python file.
+- Option 2: Running Blender through the terminal off a python script containing a `renderDEM()` function call using command line arguments.
+- Option 3: Running the standard Blender GUI to open and run a python script containing a `renderDEM()` function call using the "Scripting" workspace.
 
 <br/>
 
