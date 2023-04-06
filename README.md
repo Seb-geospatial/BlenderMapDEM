@@ -136,6 +136,18 @@ The functions are roughly organized in the order they would most likely be used 
 
 Again, please refer to the [guided workflow demonstration](demo/demonstration_workbook.ipynb) for a guide on how these functions can be used together to create hillshade maps in Blender.
 
+
+| **Function**             | **Returns**            | **Description**                                                                                                                  |
+|--------------------------|------------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| `fetchDEM()`             | None                   | Fetches and saves .GeoTIFF raster image containing DEM data for any specified extent                                             |
+| `plotDEM()`              | Matplotlib plot        | Plots an input DEM .geotiff file using rasterio and matplotlib                                                                   |
+| `describeDEM()`          | Dictionary of DEM info | Returns a dictionary including important geospatial information about an input .geotiff DEM                                      |
+| `geotiffToImage()`       | None                   | Converts and saves a .geotiff file to a viewable image file that can be imported by non-GIS programs such as Blender             |
+| `simplifyDEM()`          | None                   | Downsamples an input DEM image to a lower resolution to ease computing requirements                                              |
+| `renderDEM()`            | None                   | Uses Blender to generate a 3D rendered hillshade map using an input DEM image                                                    |
+| `renderDEM_subprocess()` | None                   | Uses the subprocess package to start Blender and render a 3D hillshade map using the `renderDEM()` function from within a python |
+|                          |                        |                                                                                                                                  |
+|                          |                        |                                                                                                                                  |
 <br/>
 
 ### fetchDEM() <a name = "fetch"></a>
