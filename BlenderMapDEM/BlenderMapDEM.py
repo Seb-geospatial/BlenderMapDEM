@@ -10,18 +10,6 @@ import subprocess
 
 # Fetch DEM .GeoTIFF image of user specified extent
 def fetchDEM(north_bound: float, south_bound: float, east_bound: float, west_bound: float, API_Key: str, output_dir: str, dataset: str = 'SRTMGL1'):
-    """
-    Uses the OpenTopography API in order to fetch a .GeoTIFF raster image containing DEM of chosen extent
-
-    Parameters:
-        north_bound (float): Latitude coordinate of the northern bound of chosen DEM extent
-        south_bound (float): Latitude coordinate of the southern bound of chosen DEM extent
-        east_bound (float): Longitude coordinate of the eastern bound of chosen DEM extent
-        west_bound (float): Longitude coordinate of the western bound of chosen DEM extent
-        API_Key (string): OpenTopography API key that is needed to fetch data
-        output_dir (string): The path to the output image file including file extension
-    """
-
     # Declare possible DEM datasets
     possible_datasets = ['SRTMGL3',
                          'SRTMGL1',
@@ -35,7 +23,23 @@ def fetchDEM(north_bound: float, south_bound: float, east_bound: float, west_bou
                          'EU_DTM',
                          'GEDI_L3']
     
-    ### --- Catch a variety of user-input errors --- ###
+        ### --- Catch a variety of user-input errors --- ###
+    
+    # Check for invalid input parameter datatypes
+    if type(north_bound) != float:
+        raise TypeError('north_bound is not of type float, please input a float.')
+    elif type(south_bound) != float:
+        raise TypeError('south_bound is not of type float, please input a float.')
+    elif type(east_bound) != float:
+        raise TypeError('east_bound is not of type float, please input a float.')
+    elif type(west_bound) != float:
+        raise TypeError('west_bound is not of type float, please input a float.')
+    elif type(API_Key) != str:
+        raise TypeError('API_Key is not of type string, please input a string.')
+    elif type(output_dir) != str:
+        raise TypeError('output_dir is not of type string, please input a string.')
+    elif type(dataset) != str:
+        raise TypeError('dataset is not of type string, please input a string.')
     
     # Check for invalid characters in output directory
     pattern = re.compile(r'[^a-zA-Z0-9_\-\\/.\s:]')
@@ -63,11 +67,11 @@ def fetchDEM(north_bound: float, south_bound: float, east_bound: float, west_bou
     elif (east_bound < west_bound):
         raise ValueError('The east bound must be greater than the west bound')
     
-    ### --- Download DEM data from OpenTopography --- ###
+        ### --- Download DEM data from OpenTopography --- ###
     
     try:
         # Query the OpenTopography API to download .GeoTiff of DEM according to user parameters
-        url = 'https://portal.opentopography.org/API/globaldem?demtype='+dataset+'&south='+str(south_bound)+'&north='+str(north_bound)+'&west='+str(west_bound)+'&east='+str(east_bound)+'&outputFormat=GTiff&API_Key='+API_Key
+        url = 'https://portal.opentopography.org/API/globaldem?demtype='+dataset+'&south='+str(south_bound)+'&north='+str(north_bound)+'&west='+str(west_bound)+'&east='+str(east_bound)+'&outputFormat=GTiff&API_Key='+API_Key+'&nullFill=true'
         response = requests.get(url)
         
         # Raise an exception if the response is not 200 (OK)
@@ -80,7 +84,7 @@ def fetchDEM(north_bound: float, south_bound: float, east_bound: float, west_bou
         # Download DEM image into output directory specified by user
         open(output_dir, 'wb').write(response.content)
 
-    ### --- Raise server response errors --- ###
+        ### --- Raise server response errors --- ###
         
     # Depending on server response, raise a variety of errors as outlined in the API informing user about possible issues in their query
     except requests.exceptions.HTTPError as error:
@@ -106,6 +110,16 @@ def plotDEM (geotiff_dir: str, histogram: bool = True, colormap: str = 'Greys_r'
     """
     
         ### --- Catch a variety of user-input errors --- ###
+    
+    # Check for invalid input parameter datatypes
+    if type(geotiff_dir) != str:
+        raise TypeError('geotiff_dir is not of type string, please input a string.')
+    elif type(histogram) != bool:
+        raise TypeError('histogram is not of type boolean, please input a boolean.')
+    elif type(colormap) != str:
+        raise TypeError('colormap is not of type string, please input a string.')
+    elif type(plot_title) != str:
+        raise TypeError('plot_title is not of type string, please input a string.')
     
     # Check for invalid characters in input directory
     pattern = re.compile(r'[^a-zA-Z0-9_\-\\/.\s:]')
@@ -145,6 +159,22 @@ def plotDEM (geotiff_dir: str, histogram: bool = True, colormap: str = 'Greys_r'
                        title = plot_title,
                        cmap = colormap)
 
+        ### --- Plot histogram of elevation values --- ###
+    
+    if histogram == True:
+        # Get the elevation values from the DEM .geotiff file
+        elevation_values = DEM.read(1).flatten()
+
+        # Plot a histogram of elevation values
+        fig, ax = plt.subplots()
+        ax.hist(elevation_values, bins=50)
+        ax.set_xlabel("Elevation Pixel Value")
+        ax.set_ylabel("Frequency of Pixels")
+        ax.set_title("Histogram of Elevation Values")
+
+        # Show both plots
+        plt.show(block=True)
+
 # Describe DEM map
 def describeDEM(geotiff_dir: str) -> dict:
     """
@@ -153,12 +183,34 @@ def describeDEM(geotiff_dir: str) -> dict:
     Parameters:
         geotiff_dir (str): Input directory of .geotiff DEM file
     """
+    
+        ### --- Catch a variety of user-input errors --- ###
+        
+    # Check for invalid input parameter datatypes
+    if type(geotiff_dir) != str:
+        raise TypeError('geotiff_dir is not of type string, please input a string.')
+        
+    # Check for invalid characters in input directory
+    pattern = re.compile(r'[^a-zA-Z0-9_\-\\/.\s:]')
+    if pattern.search(geotiff_dir):
+        raise ValueError('Geotiff directory contains invalid characters.')
+    
+    # Check for invalid input directory or filetype errors
+    if not os.path.exists(geotiff_dir):
+        raise ValueError(f'Input file path "{geotiff_dir}" does not exist.')
+    if not geotiff_dir.endswith(('.tif','.tiff')):
+        raise ValueError(f'Input file "{geotiff_dir}"" is not a valid .geotiff DEM file.')
+    
+        ### --- Open .geotiff file using rasterio --- ###
+        
     # Open .geotiff file using rasterio
     DEM = rasterio.open(geotiff_dir)
     
     # Read the data from DEM into numpy array
     data = DEM.read()
     
+        ### --- Add information to dictionary --- ###
+        
     # Declare dictionary to hold DEM information
     information = {}
     
@@ -173,7 +225,6 @@ def describeDEM(geotiff_dir: str) -> dict:
     
     # Get CRS
     
-    
     return information
 
 # Simplify DEM image to a lower resolution
@@ -187,7 +238,15 @@ def simplifyDEM(dem_dir: str, output_dir: str, reduction_factor: int = 2):
         reduction_factor (int): Number by which to divide resolution by
     """
 
-    ### --- Catch a variety of user-input errors --- ###
+        ### --- Catch a variety of user-input errors --- ###
+    
+    # Check for invalid input parameter datatypes
+    if type(dem_dir) != str:
+        raise TypeError('geotiff_dir is not of type string, please input a string.')
+    elif type(output_dir) != str:
+        raise TypeError('output_dir is not of type string, please input a string.')
+    elif type(reduction_factor) != int:
+        raise TypeError('reduction_factor is not of type integer, please input an integer.')
     
     # Check for invalid characters in input and output directories
     pattern = re.compile(r'[^a-zA-Z0-9_\-\\/.\s:]')
@@ -211,7 +270,7 @@ def simplifyDEM(dem_dir: str, output_dir: str, reduction_factor: int = 2):
     if reduction_factor < 2:
         raise ValueError(f'reduction_factor "{reduction_factor}" must be greater than or equal to 2 to reduce resolution.')
     
-    ### --- Reduce image resolution and save --- ###
+        ### --- Reduce image resolution and save --- ###
     
     # Open image
     img = Image.open(dem_dir)
@@ -228,25 +287,33 @@ def simplifyDEM(dem_dir: str, output_dir: str, reduction_factor: int = 2):
     simplified_img.save(output_dir)
 
 # Convert .GeoTIFF to image file
-def geotiffToImage(dem_dir: str, output_dir: str):
+def geotiffToImage(geotiff_dir: str, output_dir: str):
     """
     Converts a GeoTIFF file (such as one gotten from OpenTopography) to a viewable image file.
 
     Parameters:
-        dem_path (str): The path to the input DEM GeoTIFF file including file extension
+        geotiff_path (str): The path to the input DEM GeoTIFF file including file extension
         output_path (str): The path to the output image file including file extension
     """
     
+        ### --- Catch a variety of user-input errors --- ###
+        
+    # Check for invalid input parameter datatypes
+    if type(geotiff_dir) != str:
+        raise TypeError('geotiff_dir is not of type string, please input a string.')
+    elif type(output_dir) != str:
+        raise TypeError('output_dir is not of type string, please input a string.')
+   
     # Check for invalid characters in input and output directories
     pattern = re.compile(r'[^a-zA-Z0-9_\-\\/.\s:]')
-    if pattern.search(dem_dir) or pattern.search(output_dir):
+    if pattern.search(geotiff_dir) or pattern.search(output_dir):
         raise ValueError('Input or output directory contains invalid characters.')
     
     # Check for invalid input directory or filetype errors
-    if not os.path.exists(dem_dir):
-        raise ValueError(f'Input file path "{dem_dir}" does not exist.')
-    if not dem_dir.endswith(('.tif','.tiff')):
-        raise ValueError(f'Input file "{dem_dir}"" is not a valid .geotiff DEM file.')
+    if not os.path.exists(geotiff_dir):
+        raise ValueError(f'Input file path "{geotiff_dir}" does not exist.')
+    if not geotiff_dir.endswith(('.tif','.tiff')):
+        raise ValueError(f'Input file "{geotiff_dir}"" is not a valid .geotiff DEM file.')
     
     # Check for invalid output directory or filetype errors
     output_dir_path = os.path.dirname(output_dir)
@@ -255,8 +322,10 @@ def geotiffToImage(dem_dir: str, output_dir: str):
     if not output_dir.endswith(('.png','.bmp','.tif','.tiff')):
         raise ValueError(f'Output file "{output_dir}" is not a valid image file.')  
 
+        ### --- Open .geotiff image using rasterio --- ###
+        
     # Open .geotiff file using rasterio
-    DEM = rasterio.open(dem_dir)
+    DEM = rasterio.open(geotiff_dir)
     
     # Read the data from DEM into numpy array
     data = DEM.read()
@@ -269,6 +338,8 @@ def geotiffToImage(dem_dir: str, output_dir: str):
         file_type = 'PNG'
     else:
         file_type = 'JPEG'
+    
+        ### --- Convert .geotiff to image and save --- ###
     
     meta.update(dtype = 'uint8', driver = file_type)
 
@@ -304,5 +375,44 @@ def renderDEM_subprocess(blender_dir: str, dem_dir: str, output_dir: str, exagge
         samples (int): Amount of samples to be used in the final render determining its quality
     """
 
-    subprocess.run(f"{blender_dir} --background --python-expr \"from renderDEM import *; renderDEM(dem_dir = '{dem_dir}', output_dir = '{output_dir}', exaggeration = {exaggeration}, shadow_softness = {shadow_softness}, sun_angle = {sun_angle}, resolution_scale = {resolution_scale}, samples = {samples})\"")
+        ### --- Check for a variety of user-input errors --- ###
+
+    # Check for invalid input parameter datatypes
+    if type(blender_dir) != str:
+        raise TypeError('blender_dir is not of type string, please input a string.')
+    elif type(dem_dir) != str:
+        raise TypeError('dem_dir is not of type string, please input a string.')
+    elif type(output_dir) != str:
+        raise TypeError('output_dir is not of type string, please input a string.')
+    elif type(exaggeration) != float:
+        raise TypeError('exaggeration is not of type float, please input a float.')
+    elif type(shadow_softness) != float:
+        raise TypeError('shadow_softness is not of type float, please input a float.')
+    elif type(sun_angle) != float:
+        raise TypeError('sun_angle is not of type float, please input a float.')
+    elif type(resolution_scale) != int:
+        raise TypeError('resolution_scale is not of type int, please input a int.')
+    elif type(samples) != int:
+        raise TypeError('samples is not of type int, please input a int.')
+
+    # Check for invalid characters in input and output directories
+    pattern = re.compile(r'[^a-zA-Z0-9_\-\\/.\s:]')
+    if pattern.search(dem_dir) or pattern.search(output_dir) or pattern.search(blender_dir):
+        raise ValueError('Input or output or blender directory contains invalid characters.')
     
+    # Check for invalid input directory or filetype errors
+    if not os.path.exists(dem_dir):
+        raise ValueError(f'Input file path "{dem_dir}" does not exist.')
+    if not dem_dir.endswith(('.png', '.jpg', '.jpeg', '.bmp','.tif','.tiff')):
+        raise ValueError(f'Input file "{dem_dir}"" is not a valid image file.')
+    
+    # Check for invalid output directory or filetype errors
+    output_dir_path = os.path.dirname(output_dir)
+    if not os.path.exists(output_dir_path):
+        raise ValueError(f'Output file path "{output_dir}" does not exist, please create it.')
+    if not output_dir.endswith(('.png', '.jpg', '.jpeg', '.bmp','.tif','.tiff')):
+        raise ValueError(f'Output file "{output_dir}" is not a valid image file.')
+
+        ### --- Use subprocess to start Blender and run renderDEM() function --- ###
+
+    subprocess.run(f"{blender_dir} --background --python-expr \"from renderDEM import *; renderDEM(dem_dir = '{dem_dir}', output_dir = '{output_dir}', exaggeration = {exaggeration}, shadow_softness = {shadow_softness}, sun_angle = {sun_angle}, resolution_scale = {resolution_scale}, samples = {samples})\"")
