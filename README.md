@@ -104,6 +104,7 @@ You can now `import BlenderMapDEM` and use the functions of this package within 
 
 ```Python
 # Example script which fetches a DEM, converts to image, and renders using Blender
+from BlenderMapDEM import *
 
 # Get DEM .geotiff file using fetchDEM()
 fetchDEM(north_bound = 13.35,
@@ -388,7 +389,7 @@ Parameters:
     - Depending on the strength of your computer it is recommended to keep this value very low (from 1-10) while performing test renders before your final render where you can then raise it to anywhere from 20-500+ for crisp image quality.
 
 
-When in doubt, the default values of the stylistic parameters `exaggeration`, `shadow_softness`, and `sun_angle` will result in a very readable and realistic hillshade that can be then strayed from conservatively to your liking.
+When in doubt, the default values of the stylistic parameters `exaggeration`, `shadow_softness`, and `sun_angle` will result in a very readable and realistic hillshade that can then be tweaked conservatively to your liking.
 
 
 Usage example:
@@ -413,7 +414,7 @@ Optionally (but less conveniently), Blender can also be run off a python script 
 <br/>
 
 ### 🖥️ Render Map from Python Script Using renderDEM() <a name = "renderdemguide"></a>
-To run Blender from within a python script (such as the same one which fetched, manipulated, and then converted a DEM map to an image file), simply use the `renderDEM_()` function.
+To run Blender from within a python script (such as the same one which fetched, manipulated, and then converted a DEM map to an image file), simply use the `renderDEM()` function.
 
 
 The following method is very similar to running Blender as a terminal instance and specifying a path to a python script to run off of (done through specifying the command line arguments of `--background` and `--python`), however it does this within a python script itself using the `subprocess` package.
@@ -430,6 +431,7 @@ This function takes in 3 required parameters and uses the `subprocess` package t
 
 ```Python
 # Example script which fetches a DEM, converts to image, and renders using Blender
+from BlenderMapDEM import *
 
 # Get DEM .geotiff file using fetchDEM()
 fetchDEM(north_bound = 13.35,
@@ -454,7 +456,9 @@ renderDEM(blender_dir = blender, dem_dir = DEM, output_dir = output)
 
 
 The resulting image:
-<img width=50% height=50% src="demo/data/Barbados_render.png"></a>
+
+
+<img width=50% height=50% src="demo/data/Barbados_render.png">
 
 <br/>
 
