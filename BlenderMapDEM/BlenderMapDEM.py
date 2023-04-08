@@ -10,6 +10,18 @@ import subprocess
 
 # Fetch DEM .GeoTIFF image of user specified extent
 def fetchDEM(north_bound: float, south_bound: float, east_bound: float, west_bound: float, API_Key: str, output_dir: str, dataset: str = 'SRTMGL1'):
+    """
+    Uses the OpenTopography API in order to fetch a .GeoTIFF raster image containing DEM of chosen extent
+    
+    Parameters:
+        north_bound (float): Latitude coordinate of the northern bound of chosen DEM extent
+        south_bound (float): Latitude coordinate of the southern bound of chosen DEM extent
+        east_bound (float): Longitude coordinate of the eastern bound of chosen DEM extent
+        west_bound (float): Longitude coordinate of the western bound of chosen DEM extent
+        API_Key (string): OpenTopography API key that is needed to fetch data
+        output_dir (string): The path to the output image file including file extension
+    """
+
     # Declare possible DEM datasets
     possible_datasets = ['SRTMGL3',
                          'SRTMGL1',
@@ -102,7 +114,7 @@ def plotDEM (geotiff_dir: str, histogram: bool = True, colormap: str = 'Greys_r'
     """
     Plots the DEM .geotiff file using rasterio and matplotlib
     
-    Parameters":
+    Parameters:
         geotiff_dir (str): The path to the input DEM GeoTIFF file including file extension
         histogram (bool): If True, will plot a historgram of elevation values alongside base plot
         colormap (str): Define matplotlib cmap to use for plotting
@@ -360,7 +372,7 @@ def geotiffToImage(geotiff_dir: str, output_dir: str):
     DEM.close()
     output.close()
 
-def renderDEM_subprocess(blender_dir: str, dem_dir: str, output_dir: str, exaggeration: float = 0.5, shadow_softness: float = 90, sun_angle: float = 45, resolution_scale: int = 50, samples: int = 5):
+def renderDEM(blender_dir: str, dem_dir: str, output_dir: str, exaggeration: float = 0.5, shadow_softness: int = 90, sun_angle: int = 45, resolution_scale: int = 50, samples: int = 5):
     """
     Uses the subprocess package to open and run Blender off a python expression containing renderDEM()
 
@@ -370,7 +382,7 @@ def renderDEM_subprocess(blender_dir: str, dem_dir: str, output_dir: str, exagge
         output_dir (string): The path to the output rendered image file including file extension
         exaggeration (float): Level of topographic exaggeration to be applied to 3D plane based on input DEM
         shadow_softness (int): Softness of shadows with values ranging from 0-180
-        sun_angle (float): Vertical angle of sun's rays that lights the map
+        sun_angle (int): Vertical angle of sun's rays that lights the map
         resolution_scale (int): Scale of the rendered image resolution in relation to the input DEM resolution in percentage
         samples (int): Amount of samples to be used in the final render determining its quality
     """
@@ -386,14 +398,14 @@ def renderDEM_subprocess(blender_dir: str, dem_dir: str, output_dir: str, exagge
         raise TypeError('output_dir is not of type string, please input a string.')
     elif type(exaggeration) != float:
         raise TypeError('exaggeration is not of type float, please input a float.')
-    elif type(shadow_softness) != float:
-        raise TypeError('shadow_softness is not of type float, please input a float.')
-    elif type(sun_angle) != float:
-        raise TypeError('sun_angle is not of type float, please input a float.')
+    elif type(shadow_softness) != int:
+        raise TypeError('shadow_softness is not of type integer, please input an integer.')
+    elif type(sun_angle) != int:
+        raise TypeError('sun_angle is not of type integer, please input an integer.')
     elif type(resolution_scale) != int:
-        raise TypeError('resolution_scale is not of type int, please input a int.')
+        raise TypeError('resolution_scale is not of type integer, please input an integer.')
     elif type(samples) != int:
-        raise TypeError('samples is not of type int, please input a int.')
+        raise TypeError('samples is not of type integer, please input an integer.')
 
     # Check for invalid characters in input and output directories
     pattern = re.compile(r'[^a-zA-Z0-9_\-\\/.\s:]')
