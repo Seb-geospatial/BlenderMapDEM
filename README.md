@@ -65,6 +65,8 @@ Please follow these steps to install this package and enable its functionality b
 ## Step 1: Preliminary Steps
 Begin by first downloading [Blender](https://www.blender.org/download/) as well as obtain an [OpenTopography API key](https://portal.opentopography.org/lidarAuthorizationInfo?s=api).
 
+<br/>
+
 ## Step 2: Install Package Through Git
 Then, to install this module, run the following command in your terminal:
 
@@ -79,6 +81,8 @@ The reason you cant use the `renderDEM()` function at this point is because it r
 
 
 If you call `renderDEM()` right now in a script you feed to Blender it will raise an error because it doesnt know where that function is. To add it to Blender see the following step.
+
+<br/>
 
 ## Step 3: Add renderDEM.py to Blender's Modules Folder
 Blender runs on an entirely separate python installation (based on python 3.7) and installing packages/modules with custom functions beyond its defaults can be tricky and tiresome as `pip` does not work natively.
@@ -98,6 +102,8 @@ Then **paste** this file into Blender's `scripts/modules` folder so the `renderD
 `C:\Program Files\Blender Foundation\Blender 3.5\3.5\scripts\modules`
 
 ![alt text](demo/imgs/step3-2.png "Paste renderDEM.py file")
+
+<br/>
 
 ## Step 4: Using the Package
 You can now `import BlenderMapDEM` and use the functions of this package within your python projects! Here is an example file:
@@ -172,6 +178,7 @@ The resulting .GeoTIFF DEM image, while openable in GIS programs, cannot be open
 
 **NOTE:** This function requires an OpenTopography API key in order to fetch maps from their database, obtained through [creating an account](https://portal.opentopography.org/newUser) on the OpenTopography website,
 
+<br/>
 
 Parameters:
 - `north_bound: float` **Requires float**
@@ -208,6 +215,7 @@ Parameters:
         - `'EU_DTM'` (DTM 30m)
         - `'GEDI_L3'` (DTM 1000m)
 
+<br/>
 
 Usage example:
 ```Python
@@ -227,6 +235,7 @@ plotDEM(geotiff_dir, histogram = True, colormap = 'Greys_r', plot_title = 'DEM M
 
 Plots an input DEM .geotiff file using rasterio and matplotlib.
 
+<br/>
 
 Parameters:
 - `geotiff_dir: str` **Requires string**
@@ -242,6 +251,7 @@ Parameters:
 - `plot_title: str` **Requires string and defaults to 'DEM Map'**
     - Specifies the title for plot.
 
+<br/>
 
 Usage example:
 ```Python
@@ -259,10 +269,13 @@ plotDEM(geotiff_dir, histogram = True, colormap = 'Greys_r', plot_title = 'DEM M
 
 Returns a dictionary including important geospatial information about an input .geotiff DEM.
 
+<br/>
+
 Parameters:
 - `geotiff_dir: str` **Requires string**
     - Input directory of .geotiff DEM file to return information based on.
 
+<br/>
 
 Usage example:
 ```Python
@@ -286,6 +299,7 @@ It is important to note that the resulting image is currently saved with **8-bit
 
 It is also important to note that this function outputs an image file that, while readable by image viewers and Blender, is devoid of all geospatial metadata. Use this function towards the end your workflow before `simplifyDEM()` and `renderDEM()` when such metadata is no longer needed to generate a map.
 
+<br/>
 
 Parameters:
 - `geotiff_dir: str` **Requires string**
@@ -298,6 +312,7 @@ Parameters:
         - Example: `'absolute/path/to/output.png'` or `./relative_path_to_output.png`
     - While all standard image formats are acceptable as output, **converting the image to .png** is highly recommended as it results in the best quality retention.
     
+<br/>
 
 Usage example:
 ```Python
@@ -318,6 +333,7 @@ Uses the PIL package to read in an input DEM image (of likely a high resolution)
 
 **NOTE:** this function currently does not work with .GeoTIFF files which contain geospatial metadata and must be opened in GIS programs, this method is intended to be used to prepare a viewable image file before it is imported into Blender to ease computational requirements on computers.
 
+<br/>
 
 Parameters:
 - `dem_dir: str` **Requires string**
@@ -334,6 +350,7 @@ Parameters:
     - **Must be equal or greater than 2**
     - Be gentle with the amount you reduce the resolution by, depending on the size of your input image, reducing the resolution by more than half could have negative impacts on its clarity in the final rendered image.
 
+<br/>
 
 Usage example:
 ```Python
@@ -357,6 +374,7 @@ This function uses the subprocess package to automate running Blender through th
 
 For more information on using Blender to execute this function, see the [Blender Usage](#renderdemguide) section.
 
+<br/>
 
 Parameters:
 - `blender_dir: str` **Requires string**
@@ -391,6 +409,7 @@ Parameters:
 
 When in doubt, the default values of the stylistic parameters `exaggeration`, `shadow_softness`, and `sun_angle` will result in a very readable and realistic hillshade that can then be tweaked conservatively to your liking.
 
+<br/>
 
 Usage example:
 ```Python
