@@ -18,11 +18,8 @@
     - [geotiffToImage()](#toimage)
     - [simplifyDEM()](#simplify)
     - [renderDEM()](#render)
-    - [renderDEM_subprocess()](#subprocess)
 - [Blender Usage](#usage)
-    - [Render from python script using renderDEM_subprocess()](#subprocessguide)
-    - [Render from python script using terminal](#terminal)
-    - [Render from python script using GUI](#gui)
+    - [Render from python script using renderDEM()](#renderdemguide)
     - [Usage tips](#tips)
 - [Acknowledgements](#acknowledgements)
 
@@ -58,7 +55,7 @@ This module requires an installation of **Blender**, a free and open-source 3D m
 This module also requires an [OpenTopography API key](https://portal.opentopography.org/lidarAuthorizationInfo?s=api), obtained for free by creating an account with OpenTopography, in order to to utilize the `fetchDEM()` function. This must be done in order for the function to access the global DEM datasets hosted by OpenTopography through their API.
 
 
-Please refer to the `demo/` folder of this repository to view a [guided workflow demonstration](demo/demonstration_workbook.ipynb) using the functions of this package in the form of a jupyter notebook. You can also find an example python script that will be fed into Blender as well as example DEM data in order to better understand how to use these functions.
+Please refer to the `demo/` folder of this repository to view a [guided workflow demonstration](demo/demonstration_workbook.ipynb) using the functions of this package in the form of a jupyter notebook as well as find demonstration DEM files in the `demo/data` folder. You can also refer to the [Blender Usage](#usage) section of this document for information on using the `renderDEM()` function.
 
 <br/>
 
@@ -78,7 +75,7 @@ pip install git+https://github.com/Seb-B-364/BlenderMapDEM.git
 At this point, all functions within this package **EXCEPT** `renderDEM()` can be used in your own python developer environment. You should now have the ability to fetch and work with DEM data.
 
 
-The reason you cant use the `renderDEM()` function at this point is because it makes use of Blender's built in `bpy` package which will be run automatically when a script containing the `renderDEM()` function is fed into Blender using the GUI or terminal. You do not need to have this package installed on your system's python installation, it is already installed in Blender's own python installation.
+The reason you cant use the `renderDEM()` function at this point is because it requires that the `renderDEM.py` module is added to Blender's modules folder so that Blender knows what code to run when the `renderDEM()` function is called. We will do this in the following step.
 
 
 If you call `renderDEM()` right now in a script you feed to Blender it will raise an error because it doesnt know where that function is. To add it to Blender see the following step.
@@ -96,31 +93,37 @@ First go to the directory this package was installed in to access its files and 
 
 ![alt text](demo/imgs/step3-1.png "Copy renderDEM.py file")
 
-Then **paste** this file into Blender's `scripts/modules` folder so the `renderDEM()` function will be callable by Blender's python interpreter. By default (as of Blender 3.5 and on Windows) this folder is found here:
+Then **paste** this file into Blender's `scripts/modules` folder so the `renderDEM()` function will be callable by Blender's python interpreter. By default (as of Blender 3.5 on Windows) this folder is found here:
 
 `C:\Program Files\Blender Foundation\Blender 3.5\3.5\scripts\modules`
 
 ![alt text](demo/imgs/step3-2.png "Paste renderDEM.py file")
 
-
 ### Step 4: Using the Package
-To import this module into python scripts and use all its functions **EXCEPT** `renderDEM()`, add the following to your script.py:
+You can now `import BlenderMapDEM` and use the functions of this package within your python projects! Here is an example file:
+
 ```Python
-# Import package
-from BlenderMapDEM import * # or: import BlenderMapDEM as dem
+# Example script which fetches a DEM, converts to image, and renders using Blender
 
-# Example function call
-fetchDEM(north_bound = 50, south_bound = 49, east_bound = 81, west_bound = 80, API_Key = '8da2375367b589517231f8fee1ae6b7c', output_dir = './output_DEM_here.tif', dataset = 'SRTMGL1')
-```
+# Get DEM .geotiff file using fetchDEM()
+fetchDEM(north_bound = 13.35,
+         south_bound = 13.04,
+         east_bound = -59.40,
+         west_bound = -59.68,
+         API_Key = '8da2375367b589517231f8fee1ae6b7c', # Input API key
+         dataset = 'SRTMGL1', # Specify DEM dataset, in this case SRTM 30m resolution
+         output_dir = './demo/data/BarbadosDEM.tif') # Specify output directory for map
 
+# Use geotiffToImage() to generate viewable image file from .geotiff DEM file
+geotiffToImage('./demo/data/BarbadosDEM.tif', './demo/data/BarbadosDEM_image.png')
 
-To import the `renderDEM()` function and create a map using Blender, add the following to a script.py you feed to Blender (do not add anything else to this file):
-```Python
-# Import package (notice that we import renderDEM, not BlenderMapDEM, as that is the module added to Blenders module directory)
-from renderDEM import * # or: import renderDEM as dem
+# Specifying paths of blender.exe, input DEM image, and output rendered image
+blender = 'C:/Program Files/Blender Foundation/Blender 3.5/blender.exe'
+DEM =  'C:/Home/Documents/BlenderMapDEM/demo/data/BarbadosDEM_image.png'
+output = 'C:/Home/Documents/BlenderMapDEM/demo/data/render.png'
 
-# Example function call to generate map
-renderDEM(dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputRender.png', exaggeration = 0.5, shadow_softness = 75, sun_angle = 45, resolution_scale = 25, samples = 2)
+# Use renderDEM to run blender from within this python script
+renderDEM(blender_dir = blender, dem_dir = DEM, output_dir = output)
 ```
 
 
@@ -135,23 +138,20 @@ Below you will find documentation surrounding the functions featured in this mod
 The functions are roughly organized in the order they would most likely be used in, if you wish to find a specific function refer to the [table of contents](#contents). 
 
 
-Again, please refer to the [guided workflow demonstration](demo/demonstration_workbook.ipynb) for a guide on how these functions can be used together to create hillshade maps in Blender.
+Again, please refer to the [guided workflow demonstration](demo/demonstration_workbook.ipynb) or [Blender Usage](#usage) section for a guide on how these functions can be used together to create hillshade maps in Blender.
 
 <br/>
 
-| **Function**             | **Returns**            | **Description**                                                                                                                  |
-|--------------------------|------------------------|----------------------------------------------------------------------------------------------------------------------------------|
-| `fetchDEM()`             | None                   | Fetches and saves .GeoTIFF raster image containing DEM data for any specified extent                                             |
-| `plotDEM()`              | Matplotlib plot        | Plots an input DEM .geotiff file using rasterio and matplotlib                                                                   |
-| `describeDEM()`          | Dictionary of DEM info | Returns a dictionary including important geospatial information about an input .geotiff DEM                                      |
-| `clipDEM()`              | None                   | Clips a .geotiff DEM raster image according to a shapefile boundary and sets all pixels outside the boundary to 0 height value.  |
-| `reprojectDEM()`         | None                   | Reprojects an input .geotiff DEM file to a new                                                                                   |
-| `geotiffToImage()`       | None                   | Converts and saves a .geotiff file to a viewable image file that can be imported by non-GIS programs such as Blender             |
-| `simplifyDEM()`          | None                   | Downsamples an input DEM image to a lower resolution to ease computing requirements                                              |
-| `renderDEM()`            | None                   | Uses Blender to generate a 3D rendered hillshade map using an input DEM image                                                    |
-| `renderDEM_subprocess()` | None                   | Uses the subprocess package to start Blender and render a 3D hillshade map using the `renderDEM()` function from within a python script |
-|                          |                        |                                                                                                                                  |
-|                          |                        |                                                                                                                                  |
+| **Function**             | **Returns**               | **Description**                                                                                                                  |
+|--------------------------|---------------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| `fetchDEM()`             | None; saves .geotiff file | Fetches and saves .GeoTIFF raster image containing DEM data for any specified extent                                             |
+| `plotDEM()`              | Matplotlib plot           | Plots an input DEM .geotiff file using rasterio and matplotlib                                                                   |
+| `describeDEM()`          | Dictionary of DEM info    | Returns a dictionary including important geospatial information about an input .geotiff DEM                                      |
+| `clipDEM()`              | None; saves .geotiff file | Clips a .geotiff DEM raster image according to a shapefile boundary and sets all pixels outside the boundary to 0 height value.  |
+| `reprojectDEM()`         | None; saves .geotiff file | Reprojects an input .geotiff DEM file to a new EPSG coordinate system                                                            |
+| `geotiffToImage()`       | None; saves image file    | Converts and saves a .geotiff file to a viewable image file that can be imported by non-GIS programs such as Blender             |
+| `simplifyDEM()`          | None; saves image file    | Downsamples an input DEM image to a lower resolution to ease computing requirements                                              |
+| `renderDEM()`            | None; saves image file    | Uses Blender to generate a 3D rendered hillshade map using an input DEM image                                                    |
 
 <br/>
 
@@ -345,86 +345,24 @@ simplifyDEM(dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputRender.png'
 
 ### renderDEM() <a name = "render"></a>
 ```Python
-renderDEM(dem_dir, output_dir, exaggeration = 0.5, shadow_softness = 90, sun_angle = 45, resolution_scale = 50, samples = 5)
+renderDEM(blender_dir, dem_dir, output_dir, exaggeration = 0.5, shadow_softness = 90, sun_angle = 45, resolution_scale = 50, samples = 5)
 ```
 
-Uses Blender to generate a 3D rendered hillshade map image using an input DEM image file. The input DEM image must be viewable by non-GIS software, use `geotiffToImage()` to convert fetched DEM data into an image readable by Blender before using this function.
+Uses Blender to generate a 3D rendered hillshade map using an input DEM image file. The input DEM image must be viewable by non-GIS software, use `geotiffToImage()` to convert fetched DEM data into an image readable by Blender before using this function.
 
 
-**NOTE:** this function is intended to be run directly by Blender (either through the terminal or GUI), utilizing Blender's own python installation and `bpy` package. This function **WILL NOT WORK** if it is called from a script that is run by a normal python installation because it wont be able to use Blender's capabilities to render the image.
+This function uses the subprocess package to automate running Blender through the terminal off of the `renderDEM.py` module added to Blender's modules directory which itself contains the real `renderDEM()` function. This function removes the need to run Blender manually, either through the terminal or GUI, in order to generate a rendered hillshade map using an input DEM.
 
 
-Use `renderDEM_subprocess()` instead if you wish to open Blender and render the DEM image from within a python script.
-
-
-For more information on using Blender to execute this function, see the [Blender Usage](#usage) section.
-
-
-Parameters:
-- `dem_dir: str` **Requires string**
-    - Directory of the input DEM image including its file extension. All standard image file types are acceptable, **including .tif/.tiff files**.
-    - Make sure to specify the absolute path of the input DEM image
-        - Example: `dem_dir = 'C:/Users/USERNAME/Desktop/DEM.tif'`
-- `output_dir: str` **Requires string**
-    - Directory of the output rendered map including its file extension. All standard image file types are acceptable, **including .tif/.tiff files**.
-    - Make sure to specify the absolute path of the output rendered map
-        - Example: `output_dir = 'C:/Users/USERNAME/Desktop/render.png'`
-- `exaggeration: float` **Requires float and defaults to 0.5**
-    - Level of topographic exaggeration to be applied to 3D plane based on input DEM. Higher values will result in "spiky" terrain and darker crevices between landforms when viewed from above.
-    - Generally values between 0.3 (relatively flat) to 1 (very spiky) produce good maps however there is no limit to how high this value can go.
-    - Note that negative values are possible and will reverse the direction the terrain is exaggerated, "carving" the landscape underground.
-- `shadow_softness: float` **Requires float and defaults to 90 (relatively soft)**
-    - This value specifically refers to the angular diameter of the sun's light source however functionally it can be understood as shadow softness.
-    - Acceptable values range from 0-180 however best results will come between values of around 10-90; **values below 0 will be treated as 0 and values above 180 will be treated as 180.**
-    - Low values (0-10) will result in very hard shadows as if the landscape is on the moon, and higher values (45-90) will result in softer more natural shadows
-    - Values approaching 180 may result in unusual shadows.
-- `sun_angle: float` **Requires float and defaults to 45 (degrees)**
-    - Vertical angle the sun is shining down on in degrees, mimicking how high the sun is in the sky.
-    - Acceptable values range from 0-90; values both above 90 and below 0 are possible however may result in unusual shadows as the sun will shine from realistically impossible angles.
-    - For reference a value of 90 will have the sun shining horizontally, a value of 0 will have it shining straight down, and a value of 45 will have it shining diagonally down allowing moderate shadows to be cast on the landforms.
-- `resolution_scale: int` **Requires integer and defaults to 50**
-    - Scale of the rendered image resolution in relation to the input DEM resolution in the form of percentage. An input DEM with resolution 2000x2000 and a `resolution_scale = 100` will result in a rendered image with resolution 2000x2000 (100% of input DEM), whereas `resolution_scale = 50` will result in a final render of 1000x1000 (50% of input DEM).
-    - It is recommended to keep this value around or below 50 while performing test renders to improve speed before raising it to 100 for the final render at full resolution. Has a great affect on render speed and resource load on computer.
-- `samples: int` **Requires integer and defaults to 5**
-    - Amount of samples to be used in the final render. Samples can be understood as how many "passes" Blender takes over the image during the rendering process, refining the image more and more each sample/pass, making it more clear and less noisy. Has an **extremely large** affect on render speed and resource load on computer.
-    - Depending on the strength of your computer it is recommended to keep this value very low (from 1-10) while performing test renders before your final render where you can then raise it to anywhere from 20-500+ for crisp image quality.
-
-
-When in doubt, the default values of the stylistic parameters `exaggeration`, `shadow_softness`, and `sun_angle` will result in a very readable and realistic hillshade that can be then strayed from conservatively to your liking.
-
-
-Usage example:
-```Python
-# The following code uses Blender to render a 3D hillshade map
-
-# Notice the very conservative resolution_scale and samples values,
-# do not underestimate the length of time it takes to render image with these values set too high
-
-renderDEM(dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputRender.png', exaggeration = 0.5, shadow_softness = 75, sun_angle = 45, resolution_scale = 25, samples = 2)
-```
-
-<br/>
-
-### renderDEM_subprocess() <a name = "subprocess"></a>
-```Python
-renderDEM_subprocess(blender_dir, dem_dir, output_dir, exaggeration = 0.5, shadow_softness = 90, sun_angle = 45, resolution_scale = 50, samples = 5)
-```
-
-Uses Blender and the subprocess package to render a 3D hillshade map using the `renderDEM()` function from within a python script. This function removes the need to run Blender manually, either through the terminal or GUI, in order to generate a rendered hillshade map using an input DEM.
-
-
-The only difference between this function and the `renderDEM()` function is the introduction of an additional parameter `blender_dir` which points to the `blender.exe` file found in the installation directory of Blender. **All other parameters are identical to `renderDEM()` in usage, including the need to specify absolute paths to the input DEM and output rendered image.**
-
-
-For more information on using Blender to execute this function, see the [Blender Usage](#subprocessguide) section.
+For more information on using Blender to execute this function, see the [Blender Usage](#renderdemguide) section.
 
 
 Parameters:
 - `blender_dir: str` **Requires string**
-    - Absolute path to the `blender.exe` file found in the installation directory of Blender.
-    - This is essentially the terminal command you would otherwise need to input to launch Blender from the terminal. This means that if Blender is added to your PATH, this parameter can be set to just "`blender`".
+    - Absolute path to the `blender.exe` executable file found in the installation directory of Blender which the subprocess package will execute using its `subprocess.run()` method.
     - By default (as of Blender 3.5 and on Windows) this path is found here:
         - `C:/Program Files/Blender Foundation/Blender 3.5/blender.exe`
+    - If the Blender installation folder is added to your system's `PATH`, meaning it can be called by name in a terminal from any directory, this parameter can be set like this: `blender_dir = 'blender'`.
 - `output_dir: str` **Requires string**
     - Directory of the output rendered map including its file extension. All standard image file types are acceptable, **including .tif/.tiff files**.
     - Make sure to specify the absolute path of the output rendered map
@@ -433,12 +371,12 @@ Parameters:
     - Level of topographic exaggeration to be applied to 3D plane based on input DEM. Higher values will result in "spiky" terrain and darker crevices between landforms when viewed from above.
     - Generally values between 0.3 (relatively flat) to 1 (very spiky) produce good maps however there is no limit to how high this value can go.
     - Note that negative values are possible and will reverse the direction the terrain is exaggerated, "carving" the landscape underground.
-- `shadow_softness: float` **Requires float and defaults to 90 (relatively soft)**
+- `shadow_softness: int` **Requires integer and defaults to 90 (relatively soft)**
     - This value specifically refers to the angular diameter of the sun's light source however functionally it can be understood as shadow softness.
     - Acceptable values range from 0-180 however best results will come between values of around 10-90; **values below 0 will be treated as 0 and values above 180 will be treated as 180.**
     - Low values (0-10) will result in very hard shadows as if the landscape is on the moon, and higher values (45-90) will result in softer more natural shadows
     - Values approaching 180 may result in unusual shadows.
-- `sun_angle: float` **Requires float and defaults to 45 (degrees)**
+- `sun_angle: int` **Requires integer and defaults to 45 (degrees)**
     - Vertical angle the sun is shining down on in degrees, mimicking how high the sun is in the sky.
     - Acceptable values range from 0-90; values both above 90 and below 0 are possible however may result in unusual shadows as the sun will shine from realistically impossible angles.
     - For reference a value of 90 will have the sun shining horizontally, a value of 0 will have it shining straight down, and a value of 45 will have it shining diagonally down allowing moderate shadows to be cast on the landforms.
@@ -455,35 +393,40 @@ When in doubt, the default values of the stylistic parameters `exaggeration`, `s
 
 Usage example:
 ```Python
-# The following code uses Blender and the subprocess package to render a 3D hillshade map from within a python script
+# The following function uses Blender and the subprocess package to render a 3D hillshade map from within a python script
 
 
-renderDEM(blender_dir = 'path/to/blender.exe', dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputRender.png', exaggeration = 0.5, shadow_softness = 75, sun_angle = 45, resolution_scale = 25, samples = 2)
+renderDEM(blender_dir = 'C:/Program Files/Blender Foundation/Blender 3.5/blender.exe', dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputRender.png', exaggeration = 0.5, shadow_softness = 75, sun_angle = 45, resolution_scale = 50, samples = 5)
 ```
 
 <br/>
 
 ## 🗺️ Blender Usage <a name = "usage"></a>
-There are a variety of ways to use Blender to run python scripts. Below you will find three possible ways to run Blender off a python script:
+There are a variety of ways to use Blender to run python scripts, below you will be instructed on how to trigger Blender to start rendering according to user parameters from within a terminal/python environment using the `renderDEM()` function.
     
 
-- Option 1 **(RECOMMENDED)**: Using `renderDEM_subprocess()` to run Blender from within a python file.
-- Option 2: Running Blender through the terminal off a python script containing a `renderDEM()` function call using command line arguments.
-- Option 3: Running the standard Blender GUI to open and run a python script containing a `renderDEM()` function call using the "Scripting" workspace.
+Ensure that you have completed all the steps outlined in the [installation section](#installation) which involved adding the `renderDEM.py` file of this repository to Blender's modules folder. This is a crucial step so that Blender knows which code to run when the `renderDEM()` function is called.
+
+
+Optionally (but less conveniently), Blender can also be run off a python script which imports and calls the `renderDEM()` function found within the `renderDEM.py` file (a process which is being automated by the identically named `renderDEM()` function found within the `BlenderMapDEM.py` file). This can either be done in the terminal or using the "Scripting" workspace within Blender's GUI. Keep in mind using such a method is only useful if you wish to generate the map and explore the created Blender project instead of having it automatically render, save, and close.
 
 <br/>
 
-### 🖥️ Render Map from Python Script Using renderDEM_subprocess() <a name = "subprocessguide"></a>
-The following method is very similar to the method involving running Blender as a terminal instance and specifying a path to a python script to run off of, however it does this within a python script itself using the `subprocess` package.
+### 🖥️ Render Map from Python Script Using renderDEM() <a name = "renderdemguide"></a>
+To run Blender from within a python script (such as the same one which fetched, manipulated, and then converted a DEM map to an image file), simply use the `renderDEM_()` function.
 
 
-This way is recommended so that all functions in this package can be run from within a single python file, making use of all functions from `fetchDEM()` to `renderDEM()` without having to leave your python development environment.
+The following method is very similar to running Blender as a terminal instance and specifying a path to a python script to run off of (done through specifying the command line arguments of `--background` and `--python`), however it does this within a python script itself using the `subprocess` package.
 
 
-To run Blender from within a python script (such as the same one which fetched, manipulated, and then converted a DEM map to an image file), simply use the `renderDEM_subprocess()` function instead of the `renderDEM()` function.
+This way all functions in this package can be run from within a single python file, allowing you to make use of all functions from `fetchDEM()` to `renderDEM()` without having to leave your python development environment so long as you correctly point the `renderDEM()` function to Blender's executable file.
 
 
-This function will perform the same task as `renderDEM()`, however with the addition of an extra parameter `blender_dir` which points to the `blender.exe` file found in Blender's installation directory. It then uses the `subprocess` package to automate the process of running Blender in the terminal.
+This function takes in 3 required parameters and uses the `subprocess` package to automate the process of running Blender in the terminal according to these parameters:
+- `blender_dir` which points to the directory of Blender's executable file.
+- `DEM_dir` which points to the input directory of the DEM image you wish to produce a map of.
+- `output_dir` which points to the output directory that the rendered image should be saved to.
+
 
 ```Python
 # Example script which fetches a DEM, converts to image, and renders using Blender
@@ -501,75 +444,22 @@ fetchDEM(north_bound = 13.35,
 geotiffToImage('./demo/data/BarbadosDEM.tif', './demo/data/BarbadosDEM_image.png')
 
 # Specifying paths of blender.exe, input DEM image, and output rendered image
-blender = 'C:/Program Files/Blender Foundation/Blender 3.4/blender.exe'
+blender = 'C:/Program Files/Blender Foundation/Blender 3.5/blender.exe'
 DEM =  'C:/Home/Documents/BlenderMapDEM/demo/data/BarbadosDEM_image.png'
 output = 'C:/Home/Documents/BlenderMapDEM/demo/data/render.png'
 
-# Using renderDEM_subprocess to run blender from within this python script
-renderDEM_subprocess(blender_dir = blender, dem_dir = DEM, output_dir = output)
-```
-
-<br/>
-
-### 🖥️ Render Map from Python Script Using Terminal <a name = "terminal"></a>
-**IMPORTANT:** The terminal and GUI methods will render a map based on your python script using Blender's own python installation and interpreter. This means it does not have any packages installed other than its own default bpy package (and some others). There are likely ways around this that install outside packages (like this one) into Blender easily however it is beyond the scope of this project. For this reason it is important that the script/python code you feed into Blender to render your 3D map **ONLY contains your import of renderDEM, your function call of `renderDEM()`,** and your chosen argument parameters like this...
-
-
-Example script.py:
-```Python
-# Script to render a 3D hillshade map in Blender
-from renderDEM import * # Note that we import renderDEM (NOT BlenderMapDEM)
-
-# Remember to replace USERNAME with your system username
-renderDEM(dem_dir = 'C:/Users/USERNAME/OneDrive/Desktop/DEM.tif', output_dir = 'C:/Users/USERNAME/OneDrive/Desktop/render.png', exaggeration = 0.5, shadow_softness = 50, sun_angle = 35, resolution_scale = 100, samples = 50)
-
-# End of script
+# Use renderDEM() to run blender from within this python script
+renderDEM(blender_dir = blender, dem_dir = DEM, output_dir = output)
 ```
 
 
-Rendering your DEM map from the terminal, or through `renderDEM_subprocess()`, is both more resource efficient and quicker to execute compared to using the GUI assuming you are familiar with the terminal.
-
-
-- If Blender is not added to your PATH:
-    - In your terminal navigate to your Blender installation directory that contains your Blender.exe file. On Windows this defaults to: `C:\Program Files\Blender Foundation\Blender 3.5` as of Blender 3.5.
-    - To run a python script which contains the renderDEM() function, input `./Blender.exe --background --python path/to/script.py` into your terminal (working on Git Bash, syntax for executing applications from the terminal may differ slightly between terminal clients).
-    - This will render a DEM image to the directory specified in your renderDEM() function WITHOUT opening Blender's GUI.
-
-
-- If Blender is added to your PATH:
-    - You should be able to run Blender from anywhere in your terminal. You can be sure it is added to your PATH if running "Blender" in your terminal from any directory opens a Blender instance. (see LINK for adding Blender to PATH).
-    - To run a python script which contains the renderDEM() function, input `Blender --background --python path/to/script.py` into your terminal (working on Git Bash, syntax for executing applications from the terminal may differ slightly between terminal clients).
-    - This will render a DEM image to the directory specified in your renderDEM() function WITHOUT opening Blender's GUI.
-
-
-- For more information on starting Blender from the command line see [here](https://docs.Blender.org/manual/en/dev/advanced/command_line/launch/index.html).
-
-<br/>
-
-### 🖥️ Render Map from Python Script Using GUI <a name = "gui"></a>
-While rendering from the terminal is quicker and more resource efficient for a single render, it may be simpler if you are not that familiar with the command line to render using Blender's GUI.
-
-
-Using the GUI has a slight improvement in convenience if you wish to rerun the script and try out its different parameters as you can use the built-in text editor in the "Scripting" workspace to edit parameters on the fly.
-
-
-**NOTE:** the renderDEM() function is intended to work on a **new** Blender project file that features the default cube, camera, and light. If you already have Blender open and have made any changes to your project, go to `File>New>General` to create a new project.
-
-
-- Steps to render map using GUI:
-    - When Blender starts, create a new default project by clicking the "General" template. Then, navigate to the "Scripting" workspace located at the far right along the top bar.
-    ![alt text](https://docs.Blender.org/manual/en/latest/_images/interface_window-system_workspaces_screen.png "Blender workspace")
-    - You should see a new workspace featuring a text editor and Blender's own python console. Along the top bar of the text editor click "Open Text" (folder icon).
-    - Navigate to your python script (which imports module and calls the `renderDEM()` function) and open it.
-    - Click the "Run Script" (play button icon) and the script should produce a rendered image according to the parameters specified in the renderDEM() function.
-    - If you wish to make changes and run the script again, simply change the parameters in your imported `script.py` function call and hit the play button again.
+The resulting image:
+<img width=50% height=50% src="demo/data/Barbados_render.png"></a>
 
 <br/>
 
 ### 💡 Usage Tips <a name = "tips"></a>
-For convenience, it is recommended to use `renderDEM_subprocess()` over `renderDEM()` for the simple matter that it can open Blender and generate a rendered hillshade map all from within the same python script that fetched the data, allowing the entire workflow to exist within 1 file. There is no functional difference between the two, the option is just given to the user in case they may want to run `renderDEM()` from within the Blender GUI and tweak settings or just better understand how the function is working within Blender.
-
-For `renderDEM()` or `renderDEM_subprocess()`, It is recommended to start with **very** conservative quality settings (arguments of `resolution_scale` and `samples`) so that you are able to quickly perform many test renders while you fine-tune the stylistic arguments before your final high-quality render. This is because different input maps may have better readability with certain scale exaggerations, colors, shadows, etc. and rendering a high-quality map every time to tweak these parameters would require an unnecessary amount of time and resources.
+For `renderDEM()`, It is recommended to start with **very** conservative quality settings (arguments of `resolution_scale` and `samples`) so that you are able to quickly perform many test renders while you fine-tune the stylistic arguments before your final high-quality render. This is because different input maps may have better readability with certain scale exaggerations, colors, shadows, etc. and rendering a high-quality map every time to tweak these parameters would require an unnecessary amount of time and resources.
 
 
 Use [latlong.net](https://www.latlong.net/) to help you find the north, south, east, and west bounds of your chosen area to use with the `fetchDEM()` function.
