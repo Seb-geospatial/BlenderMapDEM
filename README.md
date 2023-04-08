@@ -25,7 +25,7 @@
 
 <br/>
 
-## 🧐 About <a name = "about"></a>
+# 🧐 About <a name = "about"></a>
 This is a python module of functions for creating 3D hillshade maps using Blender. It enables users with minimal Blender knowledge to fetch, clean, and visualize DEM data in the form of beautifully rendered hillshade maps.
 
 
@@ -36,7 +36,7 @@ A digital elevation model (DEM) is a 3D representation of a terrain's surface, c
 
 <br/>
 
-## 🏁 Getting Started <a name = "getting_started"></a>
+# 🏁 Getting Started <a name = "getting_started"></a>
 - Requirements:
     - [Blender](https://www.blender.org/download/)
     - [OpenTopography API key](https://portal.opentopography.org/lidarAuthorizationInfo?s=api)
@@ -59,13 +59,13 @@ Please refer to the `demo/` folder of this repository to view a [guided workflow
 
 <br/>
 
-## 🔧 Installation <a name = "installation"></a>
+# 🔧 Installation <a name = "installation"></a>
 Please follow these steps to install this package and enable its functionality both with fetching DEM images (using OpenTopography), as well as rendering images (using Blender).
 
-### Step 1: Preliminary Steps
+## Step 1: Preliminary Steps
 Begin by first downloading [Blender](https://www.blender.org/download/) as well as obtain an [OpenTopography API key](https://portal.opentopography.org/lidarAuthorizationInfo?s=api).
 
-### Step 2: Install Package Through Git
+## Step 2: Install Package Through Git
 Then, to install this module, run the following command in your terminal:
 
 ```bash
@@ -80,7 +80,7 @@ The reason you cant use the `renderDEM()` function at this point is because it r
 
 If you call `renderDEM()` right now in a script you feed to Blender it will raise an error because it doesnt know where that function is. To add it to Blender see the following step.
 
-### Step 3: Add renderDEM.py to Blender's Modules Folder
+## Step 3: Add renderDEM.py to Blender's Modules Folder
 Blender runs on an entirely separate python installation (based on python 3.7) and installing packages/modules with custom functions beyond its defaults can be tricky and tiresome as `pip` does not work natively.
 
 
@@ -99,7 +99,7 @@ Then **paste** this file into Blender's `scripts/modules` folder so the `renderD
 
 ![alt text](demo/imgs/step3-2.png "Paste renderDEM.py file")
 
-### Step 4: Using the Package
+## Step 4: Using the Package
 You can now `import BlenderMapDEM` and use the functions of this package within your python projects! Here is an example file:
 
 ```Python
@@ -132,7 +132,7 @@ For more information on using Blender to execute this script, see the [Blender U
 
 <br/>
 
-## 📦 Functions in this Module <a name = "functions"></a>
+# 📦 Functions in this Module <a name = "functions"></a>
 Below you will find documentation surrounding the functions featured in this module, their parameters, and usage examples.
 
 
@@ -156,7 +156,7 @@ Again, please refer to the [guided workflow demonstration](demo/demonstration_wo
 
 <br/>
 
-### fetchDEM() <a name = "fetch"></a>
+## fetchDEM() <a name = "fetch"></a>
 ```Python
 fetchDEM(north_bound, south_bound, east_bound, west_bound, API_Key, output_dir, dataset = 'SRTMGL1')
 ```
@@ -220,7 +220,7 @@ fetchDEM(north_bound = 50, south_bound = 49, east_bound = 81, west_bound = 80, A
 
 <br/>
 
-### plotDEM() <a name = "plot"></a>
+## plotDEM() <a name = "plot"></a>
 ```Python
 plotDEM(geotiff_dir, histogram = True, colormap = 'Greys_r', plot_title = 'DEM Map')
 ```
@@ -252,7 +252,7 @@ plotDEM(geotiff_dir = 'path/to/input/DEM.tif', histogram = True, colormap = 'Gre
 
 <br/>
 
-### describeDEM() <a name = "describe"></a>
+## describeDEM() <a name = "describe"></a>
 ```Python
 plotDEM(geotiff_dir, histogram = True, colormap = 'Greys_r', plot_title = 'DEM Map')
 ```
@@ -273,7 +273,7 @@ describeDEM(geotiff_dir = 'path/to/input/DEM.tif')
 
 <br/>
 
-### geotiffToImage() <a name = "toimage"></a>
+## geotiffToImage() <a name = "toimage"></a>
 ```Python
 geotiffToImage(geotiff_dir, output_dir)
 ```
@@ -308,7 +308,7 @@ geotiffToImage(geotiff_dir = 'path/to/dem.tif', output_dir = 'path/to/outputImag
 
 <br/>
 
-### simplifyDEM() <a name = "simplify"></a>
+## simplifyDEM() <a name = "simplify"></a>
 ```Python
 simplifyDEM(dem_dir, output_dir, reduction_factor = 2)
 ```
@@ -344,7 +344,7 @@ simplifyDEM(dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputRender.png'
 
 <br/>
 
-### renderDEM() <a name = "render"></a>
+## renderDEM() <a name = "render"></a>
 ```Python
 renderDEM(blender_dir, dem_dir, output_dir, exaggeration = 0.5, shadow_softness = 90, sun_angle = 45, resolution_scale = 50, samples = 5)
 ```
@@ -402,7 +402,7 @@ renderDEM(blender_dir = 'C:/Program Files/Blender Foundation/Blender 3.5/blender
 
 <br/>
 
-## 🗺️ Blender Usage <a name = "usage"></a>
+# 🗺️ Blender Usage <a name = "usage"></a>
 There are a variety of ways to use Blender to run python scripts, below you will be instructed on how to trigger Blender to start rendering according to user parameters from within a terminal/python environment using the `renderDEM()` function.
     
 
@@ -413,7 +413,7 @@ Optionally (but less conveniently), Blender can also be run off a python script 
 
 <br/>
 
-### 🖥️ Render Map from Python Script Using renderDEM() <a name = "renderdemguide"></a>
+## 🖥️ Render Map from Python Script Using renderDEM() <a name = "renderdemguide"></a>
 To run Blender from within a python script (such as the same one which fetched, manipulated, and then converted a DEM map to an image file), simply use the `renderDEM()` function.
 
 
@@ -462,7 +462,7 @@ The resulting image:
 
 <br/>
 
-### 💡 Usage Tips <a name = "tips"></a>
+## 💡 Usage Tips <a name = "tips"></a>
 For `renderDEM()`, It is recommended to start with **very** conservative quality settings (arguments of `resolution_scale` and `samples`) so that you are able to quickly perform many test renders while you fine-tune the stylistic arguments before your final high-quality render. This is because different input maps may have better readability with certain scale exaggerations, colors, shadows, etc. and rendering a high-quality map every time to tweak these parameters would require an unnecessary amount of time and resources.
 
 
@@ -470,5 +470,5 @@ Use [latlong.net](https://www.latlong.net/) to help you find the north, south, e
 
 <br/>
 
-## 🙌 Acknowledgements <a name = "acknowledgements"></a>
+# 🙌 Acknowledgements <a name = "acknowledgements"></a>
 - This documentation was created with reference from the following template created by [@kylelobo](https://github.com/kylelobo), accessible [here](https://github.com/kylelobo/The-Documentation-Compendium/blob/master/en/README_TEMPLATES/Standard.md)
