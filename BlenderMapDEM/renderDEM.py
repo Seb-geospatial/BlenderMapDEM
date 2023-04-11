@@ -47,14 +47,14 @@ def renderDEM(dem_dir: str, output_dir: str, exaggeration: float = 0.5, shadow_s
     
     # Check for invalid input directory or filetype errors
     if not os.path.exists(dem_dir):
-        raise ValueError(f'Input file path "{dem_dir}" does not exist.')
+        raise FileNotFoundError(f'Input file path "{dem_dir}" does not exist.')
     if not dem_dir.endswith(('.png', '.jpg', '.jpeg', '.bmp','.tif','.tiff')):
         raise ValueError(f'Input file "{dem_dir}"" is not a valid image file.')
     
     # Check for invalid output directory or filetype errors
     output_dir_path = os.path.dirname(output_dir)
     if not os.path.exists(output_dir_path):
-        raise ValueError(f'Output file path "{output_dir}" does not exist, please create it.')
+        raise FileNotFoundError(f'Output file directory "{output_dir}" does not exist, please create it.')
     if not output_dir.endswith(('.png', '.jpg', '.jpeg', '.bmp','.tif','.tiff')):
         raise ValueError(f'Output file "{output_dir}" is not a valid image file.')  
     
@@ -89,7 +89,7 @@ def renderDEM(dem_dir: str, output_dir: str, exaggeration: float = 0.5, shadow_s
         bpy.data.objects['Cube'].select_set(True)
         bpy.ops.object.delete() 
     
-    # If the cube exists, delete it
+    # If the plane exists, delete it
     if plane != None:
         bpy.data.objects['Plane'].select_set(True)
         bpy.ops.object.delete() 

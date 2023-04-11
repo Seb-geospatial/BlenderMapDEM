@@ -61,7 +61,7 @@ def fetchDEM(north_bound: float, south_bound: float, east_bound: float, west_bou
     # Check for invalid output directory or filetype errors
     output_dir_path = os.path.dirname(output_dir)
     if not os.path.exists(output_dir_path):
-        raise ValueError(f'Output file path "{output_dir}" does not exist, please create it.')
+        raise FileNotFoundError(f'Output file path "{output_dir}" does not exist, please create it.')
     if not output_dir.endswith(('.tif','.tiff')):
         raise ValueError(f'Invalid output filetype "{output_dir}", make sure output_dir argument ends with ".tif"')
     
@@ -140,13 +140,9 @@ def plotDEM (geotiff_dir: str, histogram: bool = True, colormap: str = 'Greys_r'
     
     # Check for invalid input directory or filetype errors
     if not os.path.exists(geotiff_dir):
-        raise ValueError(f'Input file path "{geotiff_dir}" does not exist.')
+        raise FileNotFoundError(f'Input file path "{geotiff_dir}" does not exist.')
     if not geotiff_dir.endswith(('.tif','.tiff')):
         raise ValueError(f'Input file "{geotiff_dir}"" is not a valid .geotiff DEM file.')
-    
-    # Check for invalid plot_title data type
-    if type(plot_title) != str:
-        raise ValueError('Plot title specified was not a string, please input a string for the title.')
     
         ### --- Create plot of .geotiff DEM --- ###
         
@@ -209,7 +205,7 @@ def describeDEM(geotiff_dir: str) -> dict:
     
     # Check for invalid input directory or filetype errors
     if not os.path.exists(geotiff_dir):
-        raise ValueError(f'Input file path "{geotiff_dir}" does not exist.')
+        raise FileNotFoundError(f'Input file path "{geotiff_dir}" does not exist.')
     if not geotiff_dir.endswith(('.tif','.tiff')):
         raise ValueError(f'Input file "{geotiff_dir}"" is not a valid .geotiff DEM file.')
     
@@ -267,14 +263,14 @@ def simplifyDEM(dem_dir: str, output_dir: str, reduction_factor: int = 2):
     
     # Check for invalid input directory or filetype errors
     if not os.path.exists(dem_dir):
-        raise ValueError(f'Input file path "{dem_dir}" does not exist.')
+        raise FileNotFoundError(f'Input file path "{dem_dir}" does not exist.')
     if not dem_dir.endswith(('.png','.bmp','.tif','.tiff')):
         raise ValueError(f'Input file "{dem_dir}"" is not a valid image file.')
     
     # Check for invalid output directory or filetype errors
     output_dir_path = os.path.dirname(output_dir)
     if not os.path.exists(output_dir_path):
-        raise ValueError(f'Output file path "{output_dir}" does not exist, please create it.')
+        raise FileNotFoundError(f'Output file path "{output_dir}" does not exist, please create it.')
     if not output_dir.endswith(('.png','.bmp','.tif','.tiff')):
         raise ValueError(f'Output file "{output_dir}" is not a valid image file.')  
     
@@ -323,14 +319,14 @@ def geotiffToImage(geotiff_dir: str, output_dir: str):
     
     # Check for invalid input directory or filetype errors
     if not os.path.exists(geotiff_dir):
-        raise ValueError(f'Input file path "{geotiff_dir}" does not exist.')
+        raise FileNotFoundError(f'Input file path "{geotiff_dir}" does not exist.')
     if not geotiff_dir.endswith(('.tif','.tiff')):
         raise ValueError(f'Input file "{geotiff_dir}"" is not a valid .geotiff DEM file.')
     
     # Check for invalid output directory or filetype errors
     output_dir_path = os.path.dirname(output_dir)
     if not os.path.exists(output_dir_path):
-        raise ValueError(f'Output file path "{output_dir}" does not exist, please create it.')
+        raise FileNotFoundError(f'Output file path "{output_dir}" does not exist, please create it.')
     if not output_dir.endswith(('.png','.bmp','.tif','.tiff')):
         raise ValueError(f'Output file "{output_dir}" is not a valid image file.')  
 
@@ -374,7 +370,7 @@ def geotiffToImage(geotiff_dir: str, output_dir: str):
 
 def renderDEM(blender_dir: str, dem_dir: str, output_dir: str, exaggeration: float = 0.5, shadow_softness: int = 90, sun_angle: int = 45, resolution_scale: int = 50, samples: int = 5):
     """
-    Uses the subprocess package to open and run Blender off a python expression containing renderDEM()
+    Uses Blender to generate a 3D rendered hillshade map using an input DEM image file
 
     Parameters:
         blender_dir (str): Directory of blender.exe found in Blender's installation folder
@@ -412,16 +408,20 @@ def renderDEM(blender_dir: str, dem_dir: str, output_dir: str, exaggeration: flo
     if pattern.search(dem_dir) or pattern.search(output_dir) or pattern.search(blender_dir):
         raise ValueError('Input or output or blender directory contains invalid characters.')
     
+    # Check for invalid Blender directory
+    if not os.path.exists(blender_dir):
+        raise FileNotFoundError(f'Path to Blender executable "{blender_dir}" does not exist.')
+
     # Check for invalid input directory or filetype errors
     if not os.path.exists(dem_dir):
-        raise ValueError(f'Input file path "{dem_dir}" does not exist.')
+        raise FileNotFoundError(f'Input file path "{dem_dir}" does not exist.')
     if not dem_dir.endswith(('.png', '.jpg', '.jpeg', '.bmp','.tif','.tiff')):
         raise ValueError(f'Input file "{dem_dir}"" is not a valid image file.')
     
     # Check for invalid output directory or filetype errors
     output_dir_path = os.path.dirname(output_dir)
     if not os.path.exists(output_dir_path):
-        raise ValueError(f'Output file path "{output_dir}" does not exist, please create it.')
+        raise FileNotFoundError(f'Output file path "{output_dir}" does not exist, please create it.')
     if not output_dir.endswith(('.png', '.jpg', '.jpeg', '.bmp','.tif','.tiff')):
         raise ValueError(f'Output file "{output_dir}" is not a valid image file.')
 
