@@ -1,1 +1,1 @@
-from .BlenderMapDEM import BlenderMapDEM
+from .BlenderMapDEM import *
