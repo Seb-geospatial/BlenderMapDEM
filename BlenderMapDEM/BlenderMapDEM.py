@@ -237,7 +237,14 @@ def describeDEM(geotiff_dir: str) -> dict:
 
 # Reprojects an input .GeotTiff file to a target EPSG crs code
 def reprojectDEM(geotiff_dir: str, epsg_num: str, output_dir: str):
-         
+    """
+    Reprojects an input .geotiff file to a specified EPSG crs code and outputs a new reprojected .geotiff
+    
+    Parameters:
+        geotiff_dir (str): The path to the input DEM GeoTIFF file including file extension
+        epsg_num (str): The specific EPSG code with which to reproject the input .geotiff to; int is also accepted
+        output_dir (str): The path to the output clipped image file including file extension
+    """     
         ### --- Catch a variety of user-input errors --- ###
         
     # Check for invalid input parameter datatypes
@@ -309,6 +316,95 @@ def reprojectDEM(geotiff_dir: str, epsg_num: str, output_dir: str):
                 dst_transform=transform,
                 dst_crs=output_crs,
                 resampling=Resampling.bilinear)
+    
+    # Close input and output files
+    geotiff.close()
+    output.close()
+
+# Clips an input .geotiff file according to a geometry file 
+def clipDEM(geotiff_dir: str, geometry_dir: str, output_dir: str, crop: bool = True):
+    """
+    Clips an input .geotiff file according to a geometry file and outputs a new clipped .geotiff
+    
+    Parameters:
+        geotiff_dir (str): The path to the input DEM GeoTIFF file including file extension
+        geometry_dir (str): The path to the geometry file with which to clip .geotiff by
+        output_dir (str): The path to the output clipped image file including file extension
+        crop (bool): Choose if to crop the image to clipped extent (True), or leave original extent creating an "island" effect (False)
+    """
+    
+        ### --- Catch a variety of user-input errors --- ###
+    
+    # Check for invalid input parameter datatypes
+    if type(geotiff_dir) != str:
+        raise TypeError('geotiff_dir is not of type string, please input a string.')
+    elif type(geometry_dir) != str:
+        raise TypeError('geometry_dir is not of type string, please input a string.')
+    elif type(output_dir) != str:
+        raise TypeError('output_dir is not of type string, please input a string.')
+    elif type(crop) != bool:
+        raise TypeError('crop is not of type bool, please input an bool.')
+    
+    # Check for invalid characters in input, output, and geometry directories
+    pattern = re.compile(r'[^a-zA-Z0-9_\-\\/.\s:]')
+    if pattern.search(geotiff_dir):
+        raise ValueError('Input directory contains invalid characters.')
+    elif pattern.search(output_dir):
+        raise ValueError('Output directory contains invalid characters.')
+    elif pattern.search(geometry_dir):
+        raise ValueError('Geometry directory contains invalid characters.')
+    
+    # Check for invalid input directory or filetype errors
+    if not os.path.exists(geotiff_dir):
+        raise FileNotFoundError(f'Input file path "{geotiff_dir}" does not exist.')
+    if not geotiff_dir.endswith(('.tif','.tiff')):
+        raise ValueError(f'Input file "{geotiff_dir}"" is not a valid .geotiff file.')
+    
+    # Check for invalid geometry directory or filetype errors
+    if not os.path.exists(geometry_dir):
+        raise FileNotFoundError(f'Geometry file path "{geometry_dir}" does not exist.')
+    if not geometry_dir.endswith(('.shp','.json','.geojson')):
+        raise ValueError(f'Geometry file "{geometry_dir}"" is not a valid geometry file format. Supported formats include ".shp", ",json", ".geojson".')
+    
+    # Check for invalid output directory or filetype errors
+    output_dir_path = os.path.dirname(output_dir)
+    if not os.path.exists(output_dir_path):
+        raise FileNotFoundError(f'Output file path "{output_dir}" does not exist, please create it.')
+    if not output_dir.endswith(('.tif','.tiff')):
+        raise ValueError(f'Invalid output filetype "{output_dir}", make sure output_dir argument ends with ".tif"')  
+    
+        ### --- Open .geotiff and geometry data --- ###
+    
+    # Open file containing geometry data
+    geometry = fiona.open(geometry_dir)
+    shapes = [feature["geometry"] for feature in geometry]
+    
+    # Open input .geotiff file
+    geotiff = rasterio.open(geotiff_dir)
+    
+        ### --- Prepare mask parameters --- ###
+        
+    # Specify output mask parameters
+    output_image, output_transform = rasterio.mask.mask(geotiff, shapes, crop=crop)
+    
+    # Set values below 0 to 0 to avoid overflow errors when using geotifftoImage() on the output
+    output_image = np.clip(output_image, 0, None)
+    
+    # Get metadata from input and apply it to output
+    output_meta = geotiff.meta
+    
+        ### --- Clip .geotiff according to mask and save output file --- ###
+        
+    # Update metadata of output image with masked data
+    output_meta.update({"driver": "GTiff",
+                        "height": output_image.shape[1],
+                        "width": output_image.shape[2],
+                        "transform": output_transform,
+                        "nodata": 0})
+    
+    # Create output file
+    with rasterio.open(output_dir, "w", **output_meta) as output:
+        output.write(output_image)
     
     # Close input and output files
     geotiff.close()
