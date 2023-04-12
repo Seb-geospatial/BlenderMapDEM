@@ -15,6 +15,8 @@
     - [fetchDEM()](#fetch)
     - [plotDEM()](#plot)
     - [describeDEM()](#describe)
+    - [reprojectDEM()](#reproject)
+    - [clipDEM()](#clip)
     - [geotiffToImage()](#toimage)
     - [simplifyDEM()](#simplify)
     - [renderDEM()](#render)
@@ -242,7 +244,7 @@ Parameters:
     - The path to the input DEM .geotiff file including file extension.
     - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./DEM_here.tif` to select the DEM file in the directory it is called in.
         - Example: `'absolute/path/to/DEM.tif'` or `./relative_path_to_DEM.tif`
-- `histogram: bool` **Requires boolean and defaults to true**
+- `histogram: bool` **Requires boolean and defaults to True**
     - Determines whether or not a histogram will be plotted alongside the default DEM plot showing a frequency distribution of elevation pixel values.
 - `colormap: str` **Requires string and defaults to 'Greys_r'**
     - Defines the matplotlib cmap to be used for plotting the DEM.
@@ -286,6 +288,80 @@ describeDEM(geotiff_dir = 'path/to/input/DEM.tif')
 
 <br/>
 
+## reprojectDEM() <a name = "reproject"></a>
+```Python
+reprojectDEM(geotiff_dir, epsg_num, output_dir)
+```
+
+Reprojects an input .geotiff file to a specified EPSG crs code and saves a reprojected .geotiff output file.
+
+<br/>
+
+Parameters:
+- `geotiff_dir: str` **Requires string**
+    - The path to the input DEM .geotiff file including file extension.
+    - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./DEM_here.tif` to select the DEM file in the directory it is called in.
+        - Example: `'absolute/path/to/DEM.tif'` or `./relative_path_to_DEM.tif`
+- `epsg_num: str` **Requires string (integer is also accepted)**
+    - EPSG crs numeric code with which to reproject the input .geotiff file to.
+    - Integer is also accepted, all that matters is that a valid numeric EPSG code is specified.
+- `output_dir: str` **Requires string**
+    - Directory path of the output reprojected .geotiff file including file extension.
+    - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./output_here.tif` in order to save the output file in the directory it is called in.
+        - Example: `'absolute/path/to/output.tif'` or `./relative_path_to_output.tif`
+
+<br/>
+
+Usage example:
+```Python
+# The following code reprojects an input .geotiff DEM file to a specified EPSG crs code and outputs a saves reprojected .geotiff file
+
+reprojectDEM(geotiff_dir = 'path/to/input/DEM.tif', epsg_num = '32618', output_dir = 'path/to/output/DEM_reprojected.tif')
+```
+
+<br/>
+
+## clipDEM() <a name = "crop"></a>
+```Python
+DEM(geotiff_dir, geometry_dir, output_dir, crop = True)
+```
+
+Clips an input .geotiff file according to polygon geometry found in a geometry file and saves a clipped .geotiff output file.
+
+<br/>
+
+Parameters:
+- `geotiff_dir: str` **Requires string**
+    - The path to the input DEM .geotiff file including file extension.
+    - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./DEM_here.tif` to select the DEM file in the directory it is called in.
+        - Example: `'absolute/path/to/DEM.tif'` or `./relative_path_to_DEM.tif`
+- `geometry_dir: str` **Requires string**
+    - The path to the input geometry file including file extension.
+    - Supported geometry file formats include ".geojson", ".json", ".shp". For simplicity ".geojson" or ".json" is recommended.
+        - If using shapefile as input, make sure all required extra files such as the ".shx" file are located in the same directory.
+    - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./DEM_here.geojson` to select the DEM file in the directory it is called in.
+        - Example: `'absolute/path/to/DEM.tif'` or `./relative_path_to_DEM.tif`
+- `output_dir: str` **Requires string**
+    - Directory path of the output clipped .geotiff file including file extension.
+    - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./output_here.tif` in order to save the output file in the directory it is called in.
+        - Example: `'absolute/path/to/output.tif'` or `./relative_path_to_output.tif`
+- `crop: bool` **Requires boolean and defaults to True**
+    - Determines if to crop the image to the extent of the clipped geometry (`crop = True`), or if to leave the original extent of the input .geotiff intact, creating an "island" effect (`crop = False`)
+    - If `crop = False` is set, all elevation values outside the clipped geometry are set to 0
+
+<br/>
+
+Usage example:
+```Python
+# The following code clips an input .geotiff DEM file according to a geometry file and saves the clipped .geotiff file
+
+# The original extent is kept with "crop = False", all elevations outside the geometry are just set to 0
+
+clipDEM(geotiff_dir = 'path/to/input/DEM.tif', geometry_dir = 'path/to/geometry.geojson', output_dir = 'path/to/output/DEM_clipped.tif', crop = False)
+```
+
+<br/>
+
 ## geotiffToImage() <a name = "toimage"></a>
 ```Python
 geotiffToImage(geotiff_dir, output_dir)
@@ -318,7 +394,7 @@ Usage example:
 ```Python
 # The following code takes a non-viewable .geotiff DEM image and convert it into a viewable image that is readable by non-GIS programs such as Blender
 
-geotiffToImage(geotiff_dir = 'path/to/dem.tif', output_dir = 'path/to/outputImage.png')
+geotiffToImage(geotiff_dir = 'path/to/dem.tif', output_dir = 'path/to/output/Image.png')
 ```
 
 <br/>
@@ -486,6 +562,9 @@ For `renderDEM()`, It is recommended to start with **very** conservative quality
 
 
 Use [latlong.net](https://www.latlong.net/) to help you find the north, south, east, and west bounds of your chosen area to use with the `fetchDEM()` function.
+
+
+Use [geojson.io](https://geojson.io/) to create vector polygons to use as clipping geometries with the `clipDEM()` function.
 
 <br/>
 
