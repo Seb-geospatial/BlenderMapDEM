@@ -235,64 +235,84 @@ def describeDEM(geotiff_dir: str) -> dict:
     
     return information
 
-# Simplify DEM image to a lower resolution
-def simplifyDEM(dem_dir: str, output_dir: str, reduction_factor: int = 2):
-    """
-    Downsamples DEM image to lower resolution
-
-    Parameters:
-        dem_dir (string): The path to the input DEM image file including file extension
-        output_dir (string): The path to the output image file including file extension
-        reduction_factor (int): Number by which to divide resolution by
-    """
-
+# Reprojects an input .GeotTiff file to a target EPSG crs code
+def reprojectDEM(geotiff_dir: str, epsg_num: str, output_dir: str):
+         
         ### --- Catch a variety of user-input errors --- ###
-    
+        
     # Check for invalid input parameter datatypes
-    if type(dem_dir) != str:
+    if type(geotiff_dir) != str:
         raise TypeError('geotiff_dir is not of type string, please input a string.')
+    elif type(epsg_num) != str and type(epsg_num) != int:
+        raise TypeError('epsg_num is not of type string or integer, please input a string or integer.')
     elif type(output_dir) != str:
         raise TypeError('output_dir is not of type string, please input a string.')
-    elif type(reduction_factor) != int:
-        raise TypeError('reduction_factor is not of type integer, please input an integer.')
-    
+   
     # Check for invalid characters in input and output directories
     pattern = re.compile(r'[^a-zA-Z0-9_\-\\/.\s:]')
-    if pattern.search(dem_dir) or pattern.search(output_dir):
-        raise ValueError('Input or output directory contains invalid characters.')
+    if pattern.search(geotiff_dir):
+        raise ValueError('Input directory contains invalid characters.')
+    elif pattern.search(output_dir):
+        raise ValueError('Output directory contains invalid characters.')
     
     # Check for invalid input directory or filetype errors
-    if not os.path.exists(dem_dir):
-        raise FileNotFoundError(f'Input file path "{dem_dir}" does not exist.')
-    if not dem_dir.endswith(('.png','.bmp','.tif','.tiff')):
-        raise ValueError(f'Input file "{dem_dir}"" is not a valid image file.')
+    if not os.path.exists(geotiff_dir):
+        raise FileNotFoundError(f'Input file path "{geotiff_dir}" does not exist.')
+    if not geotiff_dir.endswith(('.tif','.tiff')):
+        raise ValueError(f'Input file "{geotiff_dir}"" is not a valid .geotiff DEM file.')
     
     # Check for invalid output directory or filetype errors
     output_dir_path = os.path.dirname(output_dir)
     if not os.path.exists(output_dir_path):
         raise FileNotFoundError(f'Output file path "{output_dir}" does not exist, please create it.')
-    if not output_dir.endswith(('.png','.bmp','.tif','.tiff')):
-        raise ValueError(f'Output file "{output_dir}" is not a valid image file.')  
+    if not output_dir.endswith(('.tif','.tiff')):
+        raise ValueError(f'Invalid output filetype "{output_dir}", make sure output_dir argument ends with ".tif"') 
+       
+        ### --- Open .geotiff image and prepare crs data --- ###
     
-    # Check for invalid reduction_factor that would result in the same or larger image
-    if reduction_factor < 2:
-        raise ValueError(f'reduction_factor "{reduction_factor}" must be greater than or equal to 2 to reduce resolution.')
+    # Open the input DEM file and read metadata
+    geotiff = rasterio.open(geotiff_dir)
+    geotiff_crs = geotiff.crs
     
-        ### --- Reduce image resolution and save --- ###
+    # Define the target CRS
+    output_crs = f"EPSG:{epsg_num}"
     
-    # Open image
-    img = Image.open(dem_dir)
+    # Try to calculate the transform and dimensions for the target CRS and raise error if EPSG is invalid
+    try: 
+        transform, width, height = calculate_default_transform(
+            geotiff_crs,
+            output_crs,
+            geotiff.width,
+            geotiff.height,
+            *geotiff.bounds
+        )
+    except:
+        raise ValueError(f'Input EPSG code "{epsg_num}" is not a valid EPSG crs code.')
     
-    # Calculate the new size of the image by dividing image by the reduction_fator
-    new_width = img.width // reduction_factor
-    new_height = img.height // reduction_factor
-    new_size = (new_width, new_height)
+    # Define the output metadata
+    output_profile = geotiff.profile.copy()
+    output_profile.update({'crs': output_crs,
+                           'transform': transform,
+                           'width': width,
+                           'height': height})
     
-    # Downsample image while retaining as much quality as possible 
-    simplified_img = img.resize(new_size, resample=Image.BICUBIC)
-
-    # Save the downscaled image to a new file
-    simplified_img.save(output_dir)
+        ### --- Reproject .geotiff and save as new file --- ###
+    
+    # Reproject the DEM to the target CRS and save to the output directory
+    with rasterio.open(output_dir, 'w', **output_profile) as output:
+        for i in range(1, output.count+1):
+            reproject(
+                source=rasterio.band(geotiff, i),
+                destination=rasterio.band(output, i),
+                src_transform=geotiff.transform,
+                src_crs=geotiff_crs,
+                dst_transform=transform,
+                dst_crs=output_crs,
+                resampling=Resampling.bilinear)
+    
+    # Close input and output files
+    geotiff.close()
+    output.close()
 
 # Convert .GeoTIFF to image file
 def geotiffToImage(geotiff_dir: str, output_dir: str):
@@ -367,6 +387,65 @@ def geotiffToImage(geotiff_dir: str, output_dir: str):
     # Close input and output files
     DEM.close()
     output.close()
+
+# Simplify DEM image to a lower resolution
+def simplifyDEM(dem_dir: str, output_dir: str, reduction_factor: int = 2):
+    """
+    Downsamples DEM image to lower resolution
+
+    Parameters:
+        dem_dir (string): The path to the input DEM image file including file extension
+        output_dir (string): The path to the output image file including file extension
+        reduction_factor (int): Number by which to divide resolution by
+    """
+
+        ### --- Catch a variety of user-input errors --- ###
+    
+    # Check for invalid input parameter datatypes
+    if type(dem_dir) != str:
+        raise TypeError('geotiff_dir is not of type string, please input a string.')
+    elif type(output_dir) != str:
+        raise TypeError('output_dir is not of type string, please input a string.')
+    elif type(reduction_factor) != int:
+        raise TypeError('reduction_factor is not of type integer, please input an integer.')
+    
+    # Check for invalid characters in input and output directories
+    pattern = re.compile(r'[^a-zA-Z0-9_\-\\/.\s:]')
+    if pattern.search(dem_dir) or pattern.search(output_dir):
+        raise ValueError('Input or output directory contains invalid characters.')
+    
+    # Check for invalid input directory or filetype errors
+    if not os.path.exists(dem_dir):
+        raise FileNotFoundError(f'Input file path "{dem_dir}" does not exist.')
+    if not dem_dir.endswith(('.png','.bmp','.tif','.tiff')):
+        raise ValueError(f'Input file "{dem_dir}"" is not a valid image file.')
+    
+    # Check for invalid output directory or filetype errors
+    output_dir_path = os.path.dirname(output_dir)
+    if not os.path.exists(output_dir_path):
+        raise FileNotFoundError(f'Output file path "{output_dir}" does not exist, please create it.')
+    if not output_dir.endswith(('.png','.bmp','.tif','.tiff')):
+        raise ValueError(f'Output file "{output_dir}" is not a valid image file.')  
+    
+    # Check for invalid reduction_factor that would result in the same or larger image
+    if reduction_factor < 2:
+        raise ValueError(f'reduction_factor "{reduction_factor}" must be greater than or equal to 2 to reduce resolution.')
+    
+        ### --- Reduce image resolution and save --- ###
+    
+    # Open image
+    img = Image.open(dem_dir)
+    
+    # Calculate the new size of the image by dividing image by the reduction_fator
+    new_width = img.width // reduction_factor
+    new_height = img.height // reduction_factor
+    new_size = (new_width, new_height)
+    
+    # Downsample image while retaining as much quality as possible 
+    simplified_img = img.resize(new_size, resample=Image.BICUBIC)
+
+    # Save the downscaled image to a new file
+    simplified_img.save(output_dir)
 
 def renderDEM(blender_dir: str, dem_dir: str, output_dir: str, exaggeration: float = 0.5, shadow_softness: int = 90, sun_angle: int = 45, resolution_scale: int = 50, samples: int = 5):
     """
