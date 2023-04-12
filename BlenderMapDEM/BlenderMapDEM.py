@@ -1,12 +1,17 @@
-# Import required packages
+# Import Packages
 from PIL import Image
 import requests
 import os
 import re
+import subprocess
+import fiona
+import matplotlib.pyplot as plt
+import numpy as np
+
 import rasterio
 from rasterio.plot import show, show_hist
-import matplotlib.pyplot as plt
-import subprocess
+from rasterio.warp import calculate_default_transform, reproject, Resampling
+from rasterio.mask import mask
 
 # Fetch DEM .GeoTIFF image of user specified extent
 def fetchDEM(north_bound: float, south_bound: float, east_bound: float, west_bound: float, API_Key: str, output_dir: str, dataset: str = 'SRTMGL1'):
@@ -56,7 +61,7 @@ def fetchDEM(north_bound: float, south_bound: float, east_bound: float, west_bou
     # Check for invalid characters in output directory
     pattern = re.compile(r'[^a-zA-Z0-9_\-\\/.\s:]')
     if pattern.search(output_dir):
-        raise ValueError('Input or output directory contains invalid characters.')
+        raise ValueError('Output directory contains invalid characters.')
     
     # Check for invalid output directory or filetype errors
     output_dir_path = os.path.dirname(output_dir)
@@ -136,13 +141,13 @@ def plotDEM (geotiff_dir: str, histogram: bool = True, colormap: str = 'Greys_r'
     # Check for invalid characters in input directory
     pattern = re.compile(r'[^a-zA-Z0-9_\-\\/.\s:]')
     if pattern.search(geotiff_dir):
-        raise ValueError('Geotiff directory contains invalid characters.')
+        raise ValueError('Input directory contains invalid characters.')
     
     # Check for invalid input directory or filetype errors
     if not os.path.exists(geotiff_dir):
         raise FileNotFoundError(f'Input file path "{geotiff_dir}" does not exist.')
     if not geotiff_dir.endswith(('.tif','.tiff')):
-        raise ValueError(f'Input file "{geotiff_dir}"" is not a valid .geotiff DEM file.')
+        raise ValueError(f'Input file "{geotiff_dir}"" is not a valid .geotiff file.')
     
         ### --- Create plot of .geotiff DEM --- ###
         
@@ -201,13 +206,13 @@ def describeDEM(geotiff_dir: str) -> dict:
     # Check for invalid characters in input directory
     pattern = re.compile(r'[^a-zA-Z0-9_\-\\/.\s:]')
     if pattern.search(geotiff_dir):
-        raise ValueError('Geotiff directory contains invalid characters.')
+        raise ValueError('Input directory contains invalid characters.')
     
     # Check for invalid input directory or filetype errors
     if not os.path.exists(geotiff_dir):
         raise FileNotFoundError(f'Input file path "{geotiff_dir}" does not exist.')
     if not geotiff_dir.endswith(('.tif','.tiff')):
-        raise ValueError(f'Input file "{geotiff_dir}"" is not a valid .geotiff DEM file.')
+        raise ValueError(f'Input file "{geotiff_dir}"" is not a valid .geotiff file.')
     
         ### --- Open .geotiff file using rasterio --- ###
         
@@ -224,14 +229,24 @@ def describeDEM(geotiff_dir: str) -> dict:
     
     # Get min and max elevation pixel values
     minimum_elevation = data.min()
-    information['min pixel value'] = minimum_elevation
+    information['min_elevation'] = minimum_elevation
     
     maximum_elevation = data.max()
-    information['max pixel value'] = maximum_elevation
+    information['max_elevation'] = maximum_elevation
+    
+    # Get width and height
+    width, height =  DEM.shape
+    information['width'], information['height'] = width,height
+    
+    # Get number of bands
+    bands = DEM.count
+    information['bands'] = bands
     
     # Get coordinates for corners of DEM
     
     # Get CRS
+    crs = DEM.crs
+    information['crs'] = crs
     
     return information
 
@@ -244,7 +259,8 @@ def reprojectDEM(geotiff_dir: str, epsg_num: str, output_dir: str):
         geotiff_dir (str): The path to the input DEM GeoTIFF file including file extension
         epsg_num (str): The specific EPSG code with which to reproject the input .geotiff to; int is also accepted
         output_dir (str): The path to the output clipped image file including file extension
-    """     
+    """
+
         ### --- Catch a variety of user-input errors --- ###
         
     # Check for invalid input parameter datatypes
@@ -416,8 +432,8 @@ def geotiffToImage(geotiff_dir: str, output_dir: str):
     Converts a GeoTIFF file (such as one gotten from OpenTopography) to a viewable image file.
 
     Parameters:
-        geotiff_path (str): The path to the input DEM GeoTIFF file including file extension
-        output_path (str): The path to the output image file including file extension
+        geotiff_dir (str): The path to the input DEM GeoTIFF file including file extension
+        output_dir (str): The path to the output image file including file extension
     """
     
         ### --- Catch a variety of user-input errors --- ###
@@ -430,14 +446,16 @@ def geotiffToImage(geotiff_dir: str, output_dir: str):
    
     # Check for invalid characters in input and output directories
     pattern = re.compile(r'[^a-zA-Z0-9_\-\\/.\s:]')
-    if pattern.search(geotiff_dir) or pattern.search(output_dir):
-        raise ValueError('Input or output directory contains invalid characters.')
+    if pattern.search(geotiff_dir):
+        raise ValueError('Input directory contains invalid characters.')
+    elif pattern.search(output_dir):
+        raise ValueError('Output directory contains invalid characters.')
     
     # Check for invalid input directory or filetype errors
     if not os.path.exists(geotiff_dir):
         raise FileNotFoundError(f'Input file path "{geotiff_dir}" does not exist.')
     if not geotiff_dir.endswith(('.tif','.tiff')):
-        raise ValueError(f'Input file "{geotiff_dir}"" is not a valid .geotiff DEM file.')
+        raise ValueError(f'Input file "{geotiff_dir}"" is not a valid .geotiff file.')
     
     # Check for invalid output directory or filetype errors
     output_dir_path = os.path.dirname(output_dir)
@@ -507,8 +525,10 @@ def simplifyDEM(dem_dir: str, output_dir: str, reduction_factor: int = 2):
     
     # Check for invalid characters in input and output directories
     pattern = re.compile(r'[^a-zA-Z0-9_\-\\/.\s:]')
-    if pattern.search(dem_dir) or pattern.search(output_dir):
-        raise ValueError('Input or output directory contains invalid characters.')
+    if pattern.search(dem_dir):
+        raise ValueError('Input directory contains invalid characters.')
+    elif pattern.search(output_dir):
+        raise ValueError('Output directory contains invalid characters.')
     
     # Check for invalid input directory or filetype errors
     if not os.path.exists(dem_dir):
