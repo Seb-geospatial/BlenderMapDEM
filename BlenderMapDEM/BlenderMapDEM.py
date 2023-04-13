@@ -623,3 +623,37 @@ def renderDEM(blender_dir: str, dem_dir: str, output_dir: str, exaggeration: flo
         ### --- Use subprocess to start Blender and run renderDEM() function --- ###
 
     subprocess.run(f"{blender_dir} --background --python-expr \"from renderDEM import *; renderDEM(dem_dir = '{dem_dir}', output_dir = '{output_dir}', exaggeration = {exaggeration}, shadow_softness = {shadow_softness}, sun_angle = {sun_angle}, resolution_scale = {resolution_scale}, samples = {samples})\"")
+
+# Converts a rendered hillshade image to a .geotiff image with geospatial metadata
+def georeferenceDEM(render_dir: str, geotiff_dir: str, output_dir: str):
+    """
+    Converts an image (such as a hillshade rendered in Blender) to a .geotiff containing geospatial information gotten from an input .geotiff
+    
+    Parameters:
+        render_dir (str): Directory of the rendered hillshade image to be converted into .geotiff
+        geotiff_dir (str): Directory of the .geotiff containing the geospatial metadata to apply to the render
+        output_dir (str):  Directory of the saved .geotiff image containing the render with applied geospatial metadata
+    """
+    
+    # Open rendered hillshade image
+    render = rasterio.open(render_dir)
+    render_data = render.read()
+    render_meta = render.meta
+
+    # Open .geotiff image of same extent
+    geotiff = rasterio.open(geotiff_dir)
+
+    # Update metadata of rendered image with metadata from .geotiff
+    render_meta.update({
+            'driver': 'GTiff',
+            'dtype': render_data.dtype,
+            'transform': geotiff.transform,
+            'crs': geotiff.crs
+        })
+    
+    output = rasterio.open(output_dir, 'w', **render_meta)
+    output.write(render_data)
+    
+    render.close()
+    geotiff.close()
+    output.close()
