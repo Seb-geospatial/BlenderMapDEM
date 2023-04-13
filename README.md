@@ -156,7 +156,7 @@ Again, please refer to the [guided workflow demonstration](demo/demonstration_wo
 | `fetchDEM()`             | None; saves .geotiff file | Fetches and saves .GeoTIFF raster image containing DEM data for any specified extent                                             |
 | `plotDEM()`              | Matplotlib plot           | Plots an input DEM .geotiff file using rasterio and matplotlib                                                                   |
 | `describeDEM()`          | Dictionary of DEM info    | Returns a dictionary including important geospatial information about an input .geotiff DEM                                      |
-| `clipDEM()`              | None; saves .geotiff file | Clips a .geotiff DEM raster image according to a shapefile boundary and sets all pixels outside the boundary to 0 height value.  |
+| `clipDEM()`              | None; saves .geotiff file | Clips a .geotiff DEM raster image according to a geometry file and sets all pixels outside the boundary to 0 height value.  |
 | `reprojectDEM()`         | None; saves .geotiff file | Reprojects an input .geotiff DEM file to a new EPSG coordinate system                                                            |
 | `geotiffToImage()`       | None; saves image file    | Converts and saves a .geotiff file to a viewable image file that can be imported by non-GIS programs such as Blender             |
 | `simplifyDEM()`          | None; saves image file    | Downsamples an input DEM image to a lower resolution to ease computing requirements                                              |
