@@ -174,10 +174,10 @@ fetchDEM(north_bound, south_bound, east_bound, west_bound, API_Key, output_dir, 
 Uses the OpenTopography API in order to fetch a .GeoTIFF raster image containing DEM data for your specified extent that can then be opened using GIS programs. Fetching data may take a few minutes depending on size of request, this function works best for small extents.
 
 
-It is important to note that each dataset has limitations on the amount of area it can retrieve, and that fetching DEM data of a very large extent may result in extremely long query times. Requests are limited to 500,000,000 km2 for GEDI L3, 125,000,000 km2 for SRTM15+ V2.1, 4,050,000 km2 for SRTM GL3, COP90 and 450,000 km2 for all other data.
+It is important to note that each dataset has limitations on the amount of area it can retrieve, and that fetching DEM data of a very large extent may result in **extremely long query times**. Requests are limited to 500,000,000 km2 for GEDI L3, 125,000,000 km2 for SRTM15+ V2.1, 4,050,000 km2 for SRTM GL3, COP90 and 450,000 km2 for all other data.
 
 
-The resulting .GeoTIFF DEM image, while openable in GIS programs, cannot be opened directly by a standard image viewer or Blender. This is so other geospatial operations can be performed on the DEM before it is imported into Blender using its geographic metadata.
+The resulting .GeoTIFF DEM image, while openable in GIS programs, cannot be opened directly by a standard image viewer or Blender. This is because the image has no RGB bands and is actually helpful so other geospatial operations can be performed on the DEM before it is imported into Blender using its geographic metadata.
 
 
 **NOTE:** This function requires an OpenTopography API key in order to fetch maps from their database, obtained through [creating an account](https://portal.opentopography.org/newUser) on the OpenTopography website,
@@ -412,7 +412,10 @@ simplifyDEM(dem_dir, output_dir, reduction_factor = 2)
 Uses the PIL package to read in an input DEM image (of likely a high resolution) and output a downsampled image with lower file size and resolution using a resample method appropriate for DEM maps. May be helpful depending on your DEM data source for easing resource requirements when rendering images in Blender.
 
 
-**NOTE:** this function currently does not work with .GeoTIFF files which contain geospatial metadata and must be opened in GIS programs, this method is intended to be used to prepare a viewable image file before it is imported into Blender to ease computational requirements on computers. Make sure to use `geotiffToImage()` before using this function.
+If you plan on georeferencing the final render **it is recommended you DONT use this function** in order to retain the best quality. The `georeferenceDEM()` function requires the rendered hillshade and the initial DEM .geotiff containing metadata be the same resolution in order to correctly georeference, so if the rendered image is a lower resolution it will be up-scaled to the proper resolution automatically resulting in minor quality loss.
+
+
+**NOTE:** this function does not work with .GeoTIFF DEM files which only contain 1 band geospatial metadata and must be opened in GIS programs. This function is intended to be used to prepare a viewable image file before it is imported into Blender to ease computational requirements on computers. Make sure to use `geotiffToImage()` before using this function.
 
 <br/>
 
@@ -487,15 +490,16 @@ Parameters:
     - Vertical angle the sun is shining down on in degrees, mimicking how high the sun is in the sky.
     - Acceptable values range from 0-90; values both above 90 and below 0 are possible however may result in unusual shadows as the sun will shine from realistically impossible angles.
     - For reference a value of 90 will have the sun shining horizontally, a value of 0 will have it shining straight down, and a value of 45 will have it shining diagonally down allowing moderate shadows to be cast on the landforms.
-- `resolution_scale: int` **Requires integer and defaults to 50**
+- `resolution_scale: int` **Requires integer and defaults to 100**
     - Scale of the rendered image resolution in relation to the input DEM resolution in the form of percentage. An input DEM with resolution 2000x2000 and a `resolution_scale = 100` will result in a rendered image with resolution 2000x2000 (100% of input DEM), whereas `resolution_scale = 50` will result in a final render of 1000x1000 (50% of input DEM).
-    - It is recommended to keep this value around or below 50 while performing test renders to improve speed before raising it to 100 for the final render at full resolution. Has a great affect on render speed and resource load on computer.
+    - It is recommended to keep this value around or below 50 while performing test renders to improve speed before raising it to 100 (default value) for the final render at full resolution. Has a great affect on render speed and resource load on computer.
+    - Note that if you intend to georeference the rendered image, your final render's `resolution_scale` should always be at least 100 so that the image wont need to be up-scaled automatically by `georeferenceDEM()` resulting in quality loss.
 - `samples: int` **Requires integer and defaults to 5**
     - Amount of samples to be used in the final render. Samples can be understood as how many "passes" Blender takes over the image during the rendering process, refining the image more and more each sample/pass, making it more clear and less noisy. Has an **extremely large** affect on render speed and resource load on computer.
     - Depending on the strength of your computer it is recommended to keep this value very low (from 1-10) while performing test renders before your final render where you can then raise it to anywhere from 20-500+ for crisp image quality.
 
 
-When in doubt, the default values of the stylistic parameters `exaggeration`, `shadow_softness`, and `sun_angle` will result in a very readable and realistic hillshade that can then be tweaked conservatively to your liking.
+When in doubt, the default values of the stylistic parameters `exaggeration`, `shadow_softness`, and `sun_angle`, as well as the quality parameters of `resolution_scale` and `samples`, will result in a very readable and realistic hillshade that can then be tweaked conservatively to your liking.
 
 <br/>
 
