@@ -537,6 +537,17 @@ Parameters:
     - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./output_here.tif` in order to save the output file in the directory it is called in.
         - Example: `'absolute/path/to/output.tif'` or `./relative/path/to/output.tif`
 
+<br/>
+
+Usage example:
+```Python
+# The following code applies the geospatial metadata of a .geotiff DEM file to a rendered hillshade image created in Blender generated using the same DEM data
+
+georeferenceDEM(render_dir = 'path/to/rendered_hillshade.png', geotiff_dir = 'path/to/DEM.geotiff', output_dir = 'path/to/render_georeferenced.tif')
+```
+
+<br/>
+
 # 🗺️ Blender Usage <a name = "usage"></a>
 There are a variety of ways to use Blender to run python scripts, below you will be instructed on how to trigger Blender to start rendering according to user parameters from within a terminal/python environment using the `renderDEM()` function.
     
