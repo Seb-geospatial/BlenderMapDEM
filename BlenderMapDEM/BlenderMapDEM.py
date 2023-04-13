@@ -639,10 +639,48 @@ def georeferenceDEM(hillshade_dir: str, geotiff_dir: str, output_dir: str):
         output_dir (str):  Directory of the saved .geotiff image containing the hillshade with applied geospatial metadata
     """
     
-    # Open .geotiff DEM image containing geospatial metadata using rasterio
-    geotiff = rasterio.open(geotiff_dir)
+        ### --- Catch a variety of user-input errors --- ###
+    
+    # Check for invalid input parameter datatypes
+    if type(hillshade_dir) != str:
+        raise TypeError('hillshade_dir is not of type string, please input a string.')
+    elif type(geotiff_dir) != str:
+        raise TypeError('geotiff_dir is not of type string, please input a string.')
+    elif type(output_dir) != str:
+        raise TypeError('output_dir is not of type string, please input a string.')
+    
+    # Check for invalid characters in hillshade, .geotiff, and output directories
+    pattern = re.compile(r'[^a-zA-Z0-9_\-\\/.\s:]')
+    if pattern.search(hillshade_dir):
+        raise ValueError('Hillshade directory contains invalid characters.')
+    elif pattern.search(geotiff_dir):
+        raise ValueError('Geotiff directory contains invalid characters.')
+    elif pattern.search(output_dir):
+        raise ValueError('Output directory contains invalid characters.')
+    
+    # Check for invalid hillshade directory or filetype errors
+    if not os.path.exists(hillshade_dir):
+        raise FileNotFoundError(f'Hillshade file path "{hillshade_dir}" does not exist.')
+    if not hillshade_dir.endswith(('.png','.jpg','.jpeg','.bmp','.tif','.tiff')):
+        raise ValueError(f'Hillshade file "{hillshade_dir}"" is not a valid image filetype.')
+    
+    # Check for invalid .geotiff directory or filetype errors
+    if not os.path.exists(geotiff_dir):
+        raise FileNotFoundError(f'Geotiff file path "{geotiff_dir}" does not exist.')
+    if not geotiff_dir.endswith(('.tif','.tiff')):
+        raise ValueError(f'Geotiff file "{geotiff_dir}"" is not a valid .geotiff file')
+    
+    # Check for invalid output directory or filetype errors
+    output_dir_path = os.path.dirname(output_dir)
+    if not os.path.exists(output_dir_path):
+        raise FileNotFoundError(f'Output file path "{output_dir}" does not exist, please create it.')
+    if not output_dir.endswith(('.tif','.tiff')):
+        raise ValueError(f'Invalid output filetype "{output_dir}", make sure output_dir argument ends with ".tif"') 
     
         ### --- Resize hillshade image to resolution of .geotiff for correct georeferencing --- ###
+    
+    # Open .geotiff DEM image containing geospatial metadata using rasterio
+    geotiff = rasterio.open(geotiff_dir)
     
     # Open hillshade image using Pillow
     img = Image.open(hillshade_dir)
@@ -667,6 +705,8 @@ def georeferenceDEM(hillshade_dir: str, geotiff_dir: str, output_dir: str):
     hillshade = rasterio.open(hillshade_dir)
     hillshade_data = hillshade.read()
     hillshade_meta = hillshade.meta
+    
+        ### --- Georeference hillshade image according to the metadata of input .geotiff --- ###
     
     # Update metadata of hillshade image with metadata from .geotiff
     hillshade_meta.update({
