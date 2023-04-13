@@ -629,7 +629,7 @@ def renderDEM(blender_dir: str, dem_dir: str, output_dir: str, exaggeration: flo
     subprocess.run(f"{blender_dir} --background --python-expr \"from renderDEM import *; renderDEM(dem_dir = '{dem_dir}', output_dir = '{output_dir}', exaggeration = {exaggeration}, shadow_softness = {shadow_softness}, sun_angle = {sun_angle}, resolution_scale = {resolution_scale}, samples = {samples})\"")
 
 # Converts a rendered hillshade image to a .geotiff image with geospatial metadata
-def georeferenceDEM(hillshade_dir: str, geotiff_dir: str, output_dir: str):
+def georeferenceImage(hillshade_dir: str, geotiff_dir: str, output_dir: str):
     """
     Converts an image (such as a hillshade rendered in Blender) to a .geotiff (such as a DEM) containing geospatial information gotten from an input .geotiff
     
