@@ -266,7 +266,7 @@ plotDEM(geotiff_dir = 'path/to/input/DEM.tif', histogram = True, colormap = 'Gre
 
 ## describeDEM() <a name = "describe"></a>
 ```Python
-plotDEM(geotiff_dir, histogram = True, colormap = 'Greys_r', plot_title = 'DEM Map')
+describeDEM(geotiff_dir)
 ```
 
 Returns a dictionary including important geospatial information about an input .geotiff DEM.
