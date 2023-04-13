@@ -452,10 +452,10 @@ simplifyDEM(dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputRender.png'
 renderDEM(blender_dir, dem_dir, output_dir, exaggeration = 0.5, shadow_softness = 90, sun_angle = 45, resolution_scale = 50, samples = 5)
 ```
 
-Uses Blender to generate a 3D rendered hillshade map using an input DEM image file. The input DEM image must be viewable by non-GIS software, use `geotiffToImage()` to convert fetched DEM data into an image readable by Blender before using this function.
+Uses Blender to generate a 3D rendered hillshade map using an input DEM image file. The input DEM image must be viewable by non-GIS software, use `geotiffToImage()` to convert fetched DEM data from `fetchDEM()` into an image readable by Blender before using this function.
 
 
-This function uses the subprocess package to automate running Blender through the terminal off of the `renderDEM.py` module added to Blender's modules directory which itself contains the real `renderDEM()` function. This function removes the need to run Blender manually, either through the terminal or GUI, in order to generate a rendered hillshade map using an input DEM.
+This function uses the subprocess package to automate running Blender through the terminal off of the `renderDEM.py` module added to Blender's modules directory which itself contains the real `renderDEM()` function which interfaces with Blender using its built-in `bpy` package. This function removes the need to run Blender manually, either through the terminal or GUI, in order to generate a rendered hillshade map using an input DEM.
 
 
 For more information on using Blender to execute this function, see the [Blender Usage](#renderdemguide) section.
@@ -515,10 +515,10 @@ renderDEM(blender_dir = 'C:/Program Files/Blender Foundation/Blender 3.5/blender
 
 ## georeferenceDEM() <a name = "georeference"></a>
 ```Python
-georeferenceDEM(render_dir, geotiff_dir, output_dir)
+georeferenceDEM(hillshade_dir, geotiff_dir, output_dir)
 ```
 
-Converts an image file (such as a hillshade rendered in Blender) to a .geotiff file containing geospatial information. The image is georeferenced according to metadata retrieved from an input DEM .geotiff which should be the same .geotiff used to generate the hillshade in the first place.
+Converts an image file (such as a hillshade rendered in Blender) to a .geotiff file (such as the DEM used to create the hillshade) containing geospatial information. The image is georeferenced according to metadata retrieved from an input DEM .geotiff which should be the same .geotiff used to generate the hillshade in the first place.
 
 
 If you georeference an image using metadata from an input .geotiff that was not used to create the hillshade image (or does does not cover the same extent and has the same projection), the image will be georeferenced according to the metadata of whatever input .geotiff was provided. This will result in the output .geotiff image being georeferenced to the wrong location and will contain the wrong geospatial metadata.
@@ -526,8 +526,8 @@ If you georeference an image using metadata from an input .geotiff that was not 
 <br/>
 
 Parameters:
-- `render_dir: str` **Requires string**
-    - Directory path to the rendered hillshade image that was created by Blender you wish to apply geospatial metadata to (including file extension).
+- `hillshade_dir: str` **Requires string**
+    - Directory path to the rendered hillshade image that was created by Blender that you wish to apply geospatial metadata to (including file extension).
     - This file was generated in Blender with the use of a DEM image that was previously converted from a .geotiff file to an image file and thus lost its geospatial metadata in order for it to be readable by Blender.
     - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./DEM_here.tif` to select the DEM file in the directory it is called in.
         - Example: `'absolute/path/to/render.png'` or `./relative/path/to/render.png`
@@ -547,7 +547,7 @@ Usage example:
 ```Python
 # The following code applies the geospatial metadata of a .geotiff DEM file to a rendered hillshade image created in Blender generated using the same DEM data
 
-georeferenceDEM(render_dir = 'path/to/rendered_hillshade.png', geotiff_dir = 'path/to/DEM.geotiff', output_dir = 'path/to/render_georeferenced.tif')
+georeferenceDEM(hillshade_dir = 'path/to/rendered_hillshade.png', geotiff_dir = 'path/to/DEM.geotiff', output_dir = 'path/to/render_georeferenced.tif')
 ```
 
 <br/>

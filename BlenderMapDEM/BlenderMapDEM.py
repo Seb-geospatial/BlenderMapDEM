@@ -629,25 +629,25 @@ def renderDEM(blender_dir: str, dem_dir: str, output_dir: str, exaggeration: flo
     subprocess.run(f"{blender_dir} --background --python-expr \"from renderDEM import *; renderDEM(dem_dir = '{dem_dir}', output_dir = '{output_dir}', exaggeration = {exaggeration}, shadow_softness = {shadow_softness}, sun_angle = {sun_angle}, resolution_scale = {resolution_scale}, samples = {samples})\"")
 
 # Converts a rendered hillshade image to a .geotiff image with geospatial metadata
-def georeferenceDEM(render_dir: str, geotiff_dir: str, output_dir: str):
+def georeferenceDEM(hillshade_dir: str, geotiff_dir: str, output_dir: str):
     """
-    Converts an image (such as a hillshade rendered in Blender) to a .geotiff containing geospatial information gotten from an input .geotiff
+    Converts an image (such as a hillshade rendered in Blender) to a .geotiff (such as a DEM) containing geospatial information gotten from an input .geotiff
     
     Parameters:
-        render_dir (str): Directory of the rendered hillshade image to be converted into .geotiff
-        geotiff_dir (str): Directory of the .geotiff containing the geospatial metadata to apply to the render
-        output_dir (str):  Directory of the saved .geotiff image containing the render with applied geospatial metadata
+        hillshade_dir (str): Directory of the rendered hillshade image to be converted into .geotiff
+        geotiff_dir (str): Directory of the DEM .geotiff containing the geospatial metadata to apply to the hillshade
+        output_dir (str):  Directory of the saved .geotiff image containing the hillshade with applied geospatial metadata
     """
     
     # Open .geotiff DEM image containing geospatial metadata using rasterio
     geotiff = rasterio.open(geotiff_dir)
     
-        ### --- Resize render image to resolution of .geotiff for correct georeferencing --- ###
+        ### --- Resize hillshade image to resolution of .geotiff for correct georeferencing --- ###
     
-    # Open render image using Pillow
-    img = Image.open(render_dir)
+    # Open hillshade image using Pillow
+    img = Image.open(hillshade_dir)
     
-    # Check if render image is a different resolution to input .geotiff
+    # Check if hillshade image is a different resolution to input .geotiff
     if img.width != geotiff.width or img.height != geotiff.height:
         # Calculate the new size of the image by dividing image by the reduction_fator
         new_width = geotiff.width
@@ -658,29 +658,29 @@ def georeferenceDEM(render_dir: str, geotiff_dir: str, output_dir: str):
         resized_img = img.resize(new_size, resample=Image.BICUBIC)
     
         # Save the resized image and overwrite previous output image
-        resized_img.save(render_dir)
+        resized_img.save(hillshade_dir)
         
         # Close image
         img.close()
     
     # Open rendered hillshade image using rasterio
-    render = rasterio.open(render_dir)
-    render_data = render.read()
-    render_meta = render.meta
+    hillshade = rasterio.open(hillshade_dir)
+    hillshade_data = hillshade.read()
+    hillshade_meta = hillshade.meta
     
-    # Update metadata of rendered image with metadata from .geotiff
-    render_meta.update({
+    # Update metadata of hillshade image with metadata from .geotiff
+    hillshade_meta.update({
             'driver': 'GTiff',
-            'dtype': render_data.dtype,
+            'dtype': hillshade_data.dtype,
             'transform': geotiff.transform,
             'crs': geotiff.crs
         })
     
     # Create output file and save georeferenced input image
-    output = rasterio.open(output_dir, 'w', **render_meta)
-    output.write(render_data)
+    output = rasterio.open(output_dir, 'w', **hillshade_meta)
+    output.write(hillshade_data)
     
     # Close openned rasterio files
-    render.close()
+    hillshade.close()
     geotiff.close()
     output.close()
