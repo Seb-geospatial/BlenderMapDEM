@@ -13,6 +13,10 @@ from rasterio.plot import show, show_hist
 from rasterio.warp import calculate_default_transform, reproject, Resampling
 from rasterio.mask import mask
 
+# Ignore a warning that can be safely disregarded which is raised when georeferenceDEM() is run
+import warnings
+warnings.filterwarnings("ignore", category=rasterio.errors.NotGeoreferencedWarning)
+
 # Fetch DEM .GeoTIFF image of user specified extent
 def fetchDEM(north_bound: float, south_bound: float, east_bound: float, west_bound: float, API_Key: str, output_dir: str, dataset: str = 'SRTMGL1'):
     """
