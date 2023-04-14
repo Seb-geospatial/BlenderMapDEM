@@ -246,7 +246,22 @@ def describeDEM(geotiff_dir: str) -> dict:
     bands = DEM.count
     information['bands'] = bands
     
-    # Get coordinates for corners of DEM
+    # Get origin
+    origin = []
+    origin = DEM.bounds[3], DEM.bounds[0]
+    information['origin'] = origin
+    
+    # Get bounds of dem
+    bounds = {}
+    bounds['top'] = DEM.bounds[3]
+    bounds['bottom'] = DEM.bounds[1]
+    bounds['left'] = DEM.bounds[0]
+    bounds['right'] = DEM.bounds[2]
+    information['bounds'] = bounds
+    
+    # Get nodata value
+    nodata = DEM.nodata
+    information['nodata'] = nodata
     
     # Get CRS
     crs = DEM.crs
