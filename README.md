@@ -458,6 +458,9 @@ Uses Blender to generate a 3D rendered hillshade map using an input DEM image fi
 This function uses the subprocess package to automate running Blender through the terminal off of the `renderDEM.py` module added to Blender's modules directory which itself contains the real `renderDEM()` function which interfaces with Blender using its built-in `bpy` package. This function removes the need to run Blender manually, either through the terminal or GUI, in order to generate a rendered hillshade map using an input DEM.
 
 
+It is important for this function, because it is really being run by Blender and not by code relative to your working directory, that you specify **absolute directory paths** for the parameters of `blender_dir`, `dem_dir`, and `output_dir`.
+
+
 For more information on using Blender to execute this function, see the [Blender Usage](#renderdemguide) section.
 
 <br/>
