@@ -67,6 +67,8 @@ There is, however, a knowledge barrier of entry as only people who know how to u
     - requests
     - rasterio
     - matplotlib
+    - numpy
+    - fiona
 
 This package requires an installation of **Blender**, a free and open-source 3D modelling software, in order to utilize the `renderDEM()` function. At the time of writing, this module is working as of Blender 3.5 (latest version) and can be downloaded [here](https://www.blender.org/download/).
 
