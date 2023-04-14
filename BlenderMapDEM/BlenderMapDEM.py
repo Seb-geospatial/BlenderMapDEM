@@ -567,7 +567,7 @@ def simplifyDEM(dem_dir: str, output_dir: str, reduction_factor: int = 2):
     # Save the downscaled image to a new file
     simplified_img.save(output_dir)
 
-def renderDEM(blender_dir: str, dem_dir: str, output_dir: str, exaggeration: float = 0.5, shadow_softness: int = 90, sun_angle: int = 45, resolution_scale: int = 50, samples: int = 5):
+def renderDEM(blender_dir: str, dem_dir: str, output_dir: str, exaggeration: float = 1.0, shadow_softness: int = 90, sun_angle: int = 45, resolution_scale: int = 100, samples: int = 5):
     """
     Uses Blender to generate a 3D rendered hillshade map using an input DEM image file
 

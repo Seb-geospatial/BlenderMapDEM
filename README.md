@@ -11,7 +11,7 @@
 - [About](#about)
 - [Getting Started](#getting_started)
 - [Installation](#installation)
-- [Functions in this Module](#functions)
+- [Functions in this Package](#functions)
     - [fetchDEM()](#fetch)
     - [plotDEM()](#plot)
     - [describeDEM()](#describe)
@@ -29,10 +29,10 @@
 <br/>
 
 # 🧐 About <a name = "about"></a>
-This is a python module of functions for creating 3D hillshade maps using Blender. It enables users with minimal Blender knowledge to fetch, clean, and visualize DEM data in the form of beautifully rendered hillshade maps.
+This is a python package of functions for creating 3D hillshade maps using Blender. It enables users with minimal Blender knowledge to fetch, clean, and visualize DEM data in the form of beautifully rendered hillshade maps.
 
 
-This module is ultimately centered around its `renderDEM()` function which interfaces with Blender in order to generate a 3D rendered hillshade map using an input DEM image file.
+This package is ultimately centered around its `renderDEM()` function which interfaces with Blender in order to generate a 3D rendered hillshade map using an input DEM image file.
 
 ### What is DEM Data?
 A digital elevation model (DEM) is a 3D representation of a terrain's surface, created using remote sensing technologies to model the elevation of the ground. Typically, within a DEM image each pixel carries its elevation data as values closer to white are higher and values closer to black are lower. These images can be fed into Blender to visualize this information in 3D space, creating high quality "hillshade" maps for use in cartography.
@@ -52,10 +52,10 @@ A digital elevation model (DEM) is a 3D representation of a terrain's surface, c
     - rasterio
     - matplotlib
 
-This module requires an installation of **Blender**, a free and open-source 3D modelling software, in order to utilize the `renderDEM()` function. At the time of writing, this module is working as of Blender 3.5 (latest version) and can be downloaded [here](https://www.blender.org/download/).
+This package requires an installation of **Blender**, a free and open-source 3D modelling software, in order to utilize the `renderDEM()` function. At the time of writing, this module is working as of Blender 3.5 (latest version) and can be downloaded [here](https://www.blender.org/download/).
 
 
-This module also requires an [OpenTopography API key](https://portal.opentopography.org/lidarAuthorizationInfo?s=api), obtained for free by creating an account with OpenTopography, in order to to utilize the `fetchDEM()` function. This must be done in order for the function to access the global DEM datasets hosted by OpenTopography through their API.
+This package also requires an [OpenTopography API key](https://portal.opentopography.org/lidarAuthorizationInfo?s=api), obtained for free by creating an account with OpenTopography, in order to to utilize the `fetchDEM()` function. This must be done in order for the function to access the global DEM datasets hosted by OpenTopography through their API.
 
 
 Please refer to the `demo/` folder of this repository to view a [guided workflow demonstration](demo/demonstration_workbook.ipynb) using the functions of this package in the form of a jupyter notebook as well as find demonstration DEM files in the `demo/data` folder. You can also refer to the [Blender Usage](#usage) section of this document for information on using the `renderDEM()` function.
@@ -71,7 +71,7 @@ Begin by first downloading [Blender](https://www.blender.org/download/) as well 
 <br/>
 
 ## Step 2: Install Package Through Git
-Then, to install this module, run the following command in your terminal:
+Then, to install this package, run the following command in your terminal:
 
 ```bash
 pip install git+https://github.com/Seb-B-364/BlenderMapDEM.git
@@ -141,8 +141,8 @@ For more information on using Blender to execute this script, see the [Blender U
 
 <br/>
 
-# 📦 Functions in this Module <a name = "functions"></a>
-Below you will find documentation surrounding the functions featured in this module, their parameters, and usage examples.
+# 📦 Functions in this Package <a name = "functions"></a>
+Below you will find documentation surrounding the functions featured in this package, their parameters, and usage examples.
 
 
 The functions are roughly organized in the order they would most likely be used in, if you wish to find a specific function refer to the [table of contents](#contents). 
@@ -449,7 +449,7 @@ simplifyDEM(dem_dir = 'path/to/dem.tif', output_dir = 'path/to/outputRender.png'
 
 ## renderDEM() <a name = "render"></a>
 ```Python
-renderDEM(blender_dir, dem_dir, output_dir, exaggeration = 0.5, shadow_softness = 90, sun_angle = 45, resolution_scale = 50, samples = 5)
+renderDEM(blender_dir, dem_dir, output_dir, exaggeration = 1.0, shadow_softness = 90, sun_angle = 45, resolution_scale = 100, samples = 5)
 ```
 
 Uses Blender to generate a 3D rendered hillshade map using an input DEM image file. The input DEM image must be viewable by non-GIS software, use `geotiffToImage()` to convert fetched DEM data from `fetchDEM()` into an image readable by Blender before using this function.
@@ -477,7 +477,7 @@ Parameters:
     - Absolute directory path to the output rendered hillshade map (including file extension).
         - Example: `'absolute/path/to/render.png'`
     - All standard image file types are acceptable, **including .tif/.tiff files**.
-- `exaggeration: float` **Requires float and defaults to 0.5**
+- `exaggeration: float` **Requires float and defaults to 1.0**
     - Level of topographic exaggeration to be applied to 3D plane based on input DEM. Higher values will result in "spiky" terrain and darker crevices between landforms when viewed from above.
     - Generally values between 0.3 (relatively flat) to 1 (very spiky) produce good maps however there is no limit to how high this value can go.
     - Note that negative values are possible and will reverse the direction the terrain is exaggerated, "carving" the landscape underground.
