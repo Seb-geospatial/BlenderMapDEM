@@ -34,8 +34,24 @@ This is a python package of functions for creating 3D hillshade maps using Blend
 
 This package is ultimately centered around its `renderDEM()` function which interfaces with Blender in order to generate a 3D rendered hillshade map using an input DEM image file.
 
+
+All functions in this package are organized in a semi-modular way. They are created with the intent to be used together in sequence, however this is not required depending on your use-case. For example, if you only want to download DEM .geotiff files, perhaps you only need to use the `fetchDEM()` function, if you already have DEM .geotiff files from another source but need to convert them to an image and georeference them perhaps you only need the `geotiffToImage()` and `georeferenceImage()` functions.
+
+<br/>
+
 ### What is DEM Data?
 A digital elevation model (DEM) is a 3D representation of a terrain's surface, created using remote sensing technologies to model the elevation of the ground. Typically, within a DEM image each pixel carries its elevation data as values closer to white are higher and values closer to black are lower. These images can be fed into Blender to visualize this information in 3D space, creating high quality "hillshade" maps for use in cartography.
+
+<br/>
+
+### Why was this Package Created?
+This package was created in response to the [growing popularity of people](https://old.reddit.com/r/MapPorn/search/?q=Blender&sort=top&restrict_sr=on&t=all) using the 3D modelling software "Blender" to create rendered hillshade maps out of DEM images.
+
+
+Blender has several advantages over other methods of creating hillshade images featured in standard GIS programs as it realistically simulates lighting, allows the user enormous control over stylistic parameters, and can produce more detailed and realistic 3D hillshade renders due to its specific strengths as a 3D modelling software.
+
+
+There is, however, a knowledge barrier of entry as only people who know how to use Blender could create such hillshade maps, and the method was not easily automated to allow the input of any DEM and output a perfect hillshade every time. That is where this package comes in. The goal of this package is to allow the easy automation and generation of hillshade maps using simple python functions.
 
 <br/>
 
