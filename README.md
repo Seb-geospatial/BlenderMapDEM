@@ -289,6 +289,18 @@ describeDEM(geotiff_dir)
 
 Returns a dictionary including important geospatial information about an input .geotiff DEM.
 
+
+Returns information on:
+- Minimum elevation value (`min_elevation`)
+- Maximum elevation value (`max_elevation`)
+- Width of image in pixels (`width`)
+- Height of image in pixels (`height`)
+- Number of color bands (`bands`)
+- Top left origin location in lat,long (`origin`)
+- Bounds of image in the form of a dictionary containing top, bottom, left, right in lat,long (`bounds`)
+- Elevation value of missing data (`nodata`)
+- CRS in the form of EPSG code (`crs`)
+
 <br/>
 
 Parameters:
