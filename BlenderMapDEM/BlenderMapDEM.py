@@ -321,7 +321,8 @@ def reprojectDEM(geotiff_dir: str, epsg_num: str, output_dir: str):
     output_profile.update({'crs': output_crs,
                            'transform': transform,
                            'width': width,
-                           'height': height})
+                           'height': height,
+                           'nodata': 0})
     
         ### --- Reproject .geotiff and save as new file --- ###
     
@@ -335,7 +336,7 @@ def reprojectDEM(geotiff_dir: str, epsg_num: str, output_dir: str):
                 src_crs=geotiff_crs,
                 dst_transform=transform,
                 dst_crs=output_crs,
-                resampling=Resampling.bilinear)
+                resampling=Resampling.nearest)
     
     # Close input and output files
     geotiff.close()
