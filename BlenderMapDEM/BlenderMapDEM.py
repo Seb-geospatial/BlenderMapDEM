@@ -158,6 +158,40 @@ def fetchDEM(north_bound: float, south_bound: float, east_bound: float, west_bou
         else:
             raise error
 
+# Fix 'nodata' values of an input .geotiff
+def fixNoData(geotiff_dir: str, nodata_value: int = 0):
+    """
+    Fixes the 'nodata' pixel of DEM .geotiff images to a specific value (0 is recommended) so its data is easily interpreted
+    
+    Paramters:
+        geotiff_dir (str): Directory of the .geotiff you wish to set the 'nodata' value for
+        nodata_value (int): Value you wish to set as 'nodata' for the input .geotiff (0 is default and recommended)
+    """
+    
+    # Check for invalid input parameter datatypes
+    if type(geotiff_dir) != str:
+        raise TypeError('geotiff_dir is not of type string, please input a string.')
+    elif type(nodata_value) != int:
+        raise TypeError('nodata_value is not of type integer, please input an integer.')
+    
+    # Open .geotiff using rasterio and get metadata
+    geotiff = rasterio.open(geotiff_dir, 'r+')
+    data = geotiff.read()
+    current_nodata = geotiff.nodata
+    
+    if current_nodata == nodata_value:
+        return
+    
+    data[data == current_nodata] = 0
+    
+    geotiff.nodata = nodata_value
+    
+    # Save output and overwrite .geotiff
+    geotiff.write(data)
+    
+    # Close .geotiff
+    geotiff.close()
+
 # Create 2D plot of DEM .geotiff file
 def plotDEM (geotiff_dir: str, histogram: bool = True, colormap: str = 'Greys_r', plot_title: str = 'DEM Map'):
     """
