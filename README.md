@@ -37,7 +37,7 @@ This is a python package of functions for creating 3D hillshade maps using Blend
 This package is ultimately centered around its `renderDEM()` function which interfaces with Blender in order to generate a 3D rendered hillshade map using an input DEM image file.
 
 
-All functions in this package are organized in a semi-modular way. They are created with the intent to be used together in sequence, however this is not required depending on your use-case. For example, if you only want to download DEM .geotiff files, perhaps you only need to use the `fetchDEM()` function, if you already have DEM .geotiff files from another source but need to convert them to an image and georeference them perhaps you only need the `geotiffToImage()` and `georeferenceImage()` functions.
+All functions in this package are organized in a semi-modular way. They are created with the intent to be used together in sequence, however this is not required depending on your use-case. For example, if you only want to download DEM .geotiff files, perhaps you only need to use the `fetchDEM()` function, if you already have DEM .geotiff files from another source but need to convert them to a hillshade image and georeference them perhaps you only need the `geotiffToImage()`, `renderDEM()`, and `georeferenceImage()` functions.
 
 <br/>
 
@@ -232,7 +232,7 @@ Uses the OpenTopography API in order to fetch a .GeoTIFF raster image containing
 It is important to note that each dataset has limitations on the amount of area it can retrieve, and that fetching DEM data of a very large extent may result in **extremely long query times**. Requests are limited to 500,000,000 km2 for GEDI L3, 125,000,000 km2 for SRTM15+ V2.1, 4,050,000 km2 for SRTM GL3, COP90 and 450,000 km2 for all other data.
 
 
-The resulting .GeoTIFF DEM image, while openable in GIS programs, cannot be opened directly by a standard image viewer or Blender. This is because the image has no RGB bands and is actually helpful so other geospatial operations can be performed on the DEM before it is imported into Blender using its geographic metadata.
+The resulting .GeoTIFF DEM image, while openable in GIS programs, cannot be opened directly by a standard image viewer or Blender. This is because the image has no RGB color bands. Other geospatial operations can still be performed using the DEM .geotiff file before it is converted to a standard image file and imported into Blender.
 
 
 **NOTE:** This function requires an OpenTopography API key in order to fetch maps from their database, obtained through [creating an account](https://portal.opentopography.org/newUser) on the OpenTopography website,
@@ -295,7 +295,7 @@ fetchDEM(north_bound = 50,
 
 ## fixNoData() <a name = "nodata"></a>
 ```Python
-fixNoData(geotiff_dir, nodata_value)
+fixNoData(geotiff_dir, nodata_value = 0)
 ```
 
 Fixes the 'nodata' pixels of DEM .geotiff images to a specific value **(0 is recommended)** so that its data is more easily interpreted by `plotDEM()` and `geotiffToImage()`.
@@ -310,7 +310,7 @@ Parameters:
     - Directory path to the input DEM .geotiff file you wish to fix 'nodata' pixel values for (including .tif file extension).
     - Depending on the directory this function is being called in, you can use the relative path prefix `./` like this: `./DEM_here.tif` to select the DEM file in the directory it is called in.
         - Example: `'absolute/path/to/DEM.tif'` or `./relative_path_to_DEM.tif`
-- `nodata_value: int` **Requires integer**
+- `nodata_value: int` **Requires integer and defaults to 0**
     - Value to set 'nodata' pixel values to. If you intend to visualize the input DEM .geotiff, it is **strongly recommended** to keep to 0 (default) so that 'nodata' values will be treated as existing at sea-level.
 
 <br/>
@@ -378,7 +378,7 @@ Returns information on:
 - Height of image in pixels (`height`)
 - Number of color bands (`bands`)
 - Top left origin location in lat,long (`origin`)
-- Bounds of image in the form of a dictionary containing top, bottom, left, right in lat,long (`bounds`)
+- Bounds of image in the form of a dictionary containing north, south, east, west in latitude and longitude (`bounds`)
 - Elevation value of missing data (`nodata`)
 - CRS in the form of EPSG code (`crs`)
 
@@ -471,8 +471,6 @@ Usage example:
 ```Python
 # The following code clips an input .geotiff DEM file according to a geometry file and saves the clipped .geotiff file
 
-# The original extent is kept with "crop = False", all elevations outside the geometry are just set to 0
-
 clipDEM(geotiff_dir = 'path/to/input/DEM.tif',
         geometry_dir = 'path/to/geometry.geojson',
         output_dir = 'path/to/output/DEM_clipped.tif',
@@ -559,7 +557,7 @@ Usage example:
 
 simplifyDEM(dem_dir = 'path/to/dem.tif',
             output_dir = 'path/to/outputRender.png',
-            reduction_factor = 4)
+            reduction_factor = 2)
 ```
 
 <br/>
@@ -572,7 +570,7 @@ renderDEM(blender_dir, dem_dir, output_dir, exaggeration = 1.0, shadow_softness 
 Uses Blender to generate a 3D rendered hillshade map using an input DEM image file. The input DEM image must be viewable by non-GIS software, use `geotiffToImage()` to convert fetched DEM data from `fetchDEM()` into an image readable by Blender before using this function.
 
 
-This function uses the subprocess package to automate running Blender through the terminal off of the `renderDEM.py` module added to Blender's modules directory which itself contains the real `renderDEM()` function which interfaces with Blender using its built-in `bpy` package. This function removes the need to run Blender manually, either through the terminal or GUI, in order to generate a rendered hillshade map using an input DEM.
+This function uses the subprocess package to automate running Blender through the terminal off of the `renderDEM.py` module added to Blender's modules directory which itself contains the real `renderDEM()` function that interfaces with Blender using its built-in `bpy` package. This function removes the need to run Blender manually, either through the terminal or GUI, in order to generate a rendered hillshade map using an input DEM.
 
 
 It is important for this function, because it is really being run by Blender and not by code relative to your working directory, that you specify **absolute directory paths** for the parameters of `blender_dir`, `dem_dir`, and `output_dir`.
@@ -691,7 +689,7 @@ There are a variety of ways to use Blender to run python scripts, below you will
 Ensure that you have completed all the steps outlined in the [installation section](#installation) which involved adding the `renderDEM.py` file of this repository to Blender's modules folder. This is a crucial step so that Blender knows which code to run when the `renderDEM()` function is called.
 
 
-Optionally (but less conveniently), Blender can also be run off a python script which imports `renderDEM` and calls the `renderDEM()` function found within the `renderDEM.py` file (a process which is being automated by the identically named `renderDEM()` function found within the `BlenderMapDEM.py` file). This can either be done in the terminal or using the "Scripting" workspace within Blender's GUI. Keep in mind using such a method is only useful if you wish to generate the map and explore the created Blender project instead of having it automatically render, save, and close.
+Optionally (but less conveniently), Blender can also be run off a python script which imports `renderDEM` and calls the `renderDEM()` function found within the `renderDEM.py` file (a process which is being automated by the identically named `renderDEM()` function found within the `BlenderMapDEM.py` file). This can either be done in the terminal or using the "Scripting" workspace within Blender's GUI. Keep in mind using such a method is only useful if you wish to generate the map and explore the created Blender project and perhaps save the 3D model file for other purposes such as 3D printing instead of having it automatically render, save an image, and close.
 
 <br/>
 
