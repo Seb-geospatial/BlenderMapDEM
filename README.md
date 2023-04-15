@@ -14,6 +14,7 @@
 - [Functions in this Package](#functions)
     - [locationBounds()](#location)
     - [fetchDEM()](#fetch)
+    - [fixNoData()](#nodata)
     - [plotDEM()](#plot)
     - [describeDEM()](#describe)
     - [reprojectDEM()](#reproject)
