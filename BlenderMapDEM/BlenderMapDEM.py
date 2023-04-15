@@ -7,6 +7,7 @@ import subprocess
 import fiona
 import matplotlib.pyplot as plt
 import numpy as np
+from geopy.geocoders import Nominatim
 
 import rasterio
 from rasterio.plot import show, show_hist
@@ -351,7 +352,7 @@ def reprojectDEM(geotiff_dir: str, epsg_num: str, output_dir: str):
     Parameters:
         geotiff_dir (str): The path to the input DEM GeoTIFF file including file extension
         epsg_num (str): The specific EPSG code with which to reproject the input .geotiff to; int is also accepted
-        output_dir (str): The path to the output clipped image file including file extension
+        output_dir (str): The path to the output reprojected image file including file extension
     """
 
         ### --- Catch a variety of user-input errors --- ###
