@@ -17,6 +17,46 @@ from rasterio.mask import mask
 import warnings
 warnings.filterwarnings("ignore", category=rasterio.errors.NotGeoreferencedWarning)
 
+# Get bounds of a location by name
+def locationBounds(location: str):
+    """
+    Uses the OpenStreetMap API to return a dictionary of north, south, east, and west latitude and longitude boundaries for a specified location
+    
+    Parameters:
+        location (str): location you wish to get the boundaries of
+    """
+    
+    # Check for invalid input parameter datatypes
+    if type(location) != str:
+        raise TypeError('location is not of type string, please input a string.')
+    
+    # Try to return valid location bounds
+    try:
+        # Get geocode using geopy.Nominatim module
+        location_query = Nominatim(user_agent = "BlenderMapDEM").geocode(location)
+        lat,lon = location_query.latitude, location_query.longitude
+
+        # Query OpenStreetMap API for boundaries
+        url = f'https://nominatim.openstreetmap.org/search?q={location_query}&format=jsonv2'
+        response = requests.get(url).json()
+
+        # Organize boundary values in a dictionary
+        north = float(response[0]['boundingbox'][1])
+        south = float(response[0]['boundingbox'][0])
+        east = float(response[0]['boundingbox'][3])
+        west = float(response[0]['boundingbox'][2])
+
+        bounds = {'north': north, 'south': south, 'east': east, 'west': west}
+
+        # Return dictionary of bounds
+        return bounds
+    
+    # Raise error if query was invalid
+    except AttributeError:
+        raise AttributeError(f'{location} is not a valid location')
+    except Exception as error:
+        raise error
+
 # Fetch DEM .GeoTIFF image of user specified extent
 def fetchDEM(north_bound: float, south_bound: float, east_bound: float, west_bound: float, API_Key: str, output_dir: str, dataset: str = 'SRTMGL1'):
     """
