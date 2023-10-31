@@ -95,7 +95,7 @@ Begin by first downloading [Blender](https://www.blender.org/download/) as well 
 Then, to install this package, run the following command in your terminal:
 
 ```bash
-pip install git+https://github.com/Seb-B-364/BlenderMapDEM.git
+pip install git+https://github.com/Seb-geospatial/BlenderMapDEM
 ```
 
 At this point, all functions within this package **EXCEPT** `renderDEM()` can be used in your own python developer environment. You should now have the ability to fetch and work with DEM data.
