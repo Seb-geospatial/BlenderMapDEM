@@ -73,7 +73,7 @@ There is, however, a knowledge barrier of entry as only people who know how to u
     - fiona
     - geopy
 
-This package requires an installation of **Blender**, a free and open-source 3D modelling software, in order to utilize the `renderDEM()` function. At the time of writing, this module is working as of Blender 3.5 (latest version) and can be downloaded [here](https://www.blender.org/download/).
+This package requires an installation of **Blender**, a free and open-source 3D modelling software, in order to utilize the `renderDEM()` function. At the time of writing, this module is tested and working as of Blender 4.0.1 and can be downloaded [here](https://www.blender.org/download/).
 
 
 This package also requires an [OpenTopography API key](https://portal.opentopography.org/lidarAuthorizationInfo?s=api), obtained for free by creating an account with OpenTopography, in order to to utilize the `fetchDEM()` function. This must be done in order for the function to access the global DEM datasets hosted by OpenTopography through their API.
@@ -121,9 +121,9 @@ First go to the directory this package was installed in to access its files and 
 
 ![alt text](demo/imgs/step3-1.png "Copy renderDEM.py file")
 
-Then **paste** this file into Blender's `scripts/modules` folder so the `renderDEM()` function will be callable by Blender's python interpreter. By default (as of Blender 3.5 on Windows) this folder is found here:
+Then **paste** this file into Blender's `scripts/modules` folder so the `renderDEM()` function will be callable by Blender's python interpreter. By default (as of Blender 4.0 on Windows) this folder is found here:
 
-`C:\Program Files\Blender Foundation\Blender 3.5\3.5\scripts\modules`
+`C:\Program Files\Blender Foundation\Blender 4.0\4.0\scripts\modules`
 
 ![alt text](demo/imgs/step3-2.png "Paste renderDEM.py file")
 
@@ -149,7 +149,7 @@ fetchDEM(north_bound = 13.35,
 geotiffToImage('./demo/data/BarbadosDEM.tif', './demo/data/BarbadosDEM_image.png')
 
 # Specifying paths of blender.exe, input DEM image, and output rendered image
-blender = 'C:/Program Files/Blender Foundation/Blender 3.5/blender.exe'
+blender = 'C:/Program Files/Blender Foundation/Blender 4.0/blender.exe'
 DEM =  'C:/Home/Documents/BlenderMapDEM/demo/data/BarbadosDEM_image.png'
 output = 'C:/Home/Documents/BlenderMapDEM/demo/data/render.png'
 
@@ -583,8 +583,8 @@ For more information on using Blender to execute this function, see the [Blender
 Parameters:
 - `blender_dir: str` **Requires string**
     - Absolute directory path to the `blender.exe` executable file found in the installation directory of Blender which the subprocess package will execute using its `subprocess.run()` method.
-    - By default (as of Blender 3.5 and on Windows) this path is found here:
-        - `C:/Program Files/Blender Foundation/Blender 3.5/blender.exe`
+    - By default (as of Blender 4.0 and on Windows) this path is found here:
+        - `C:/Program Files/Blender Foundation/Blender 4.0/blender.exe`
     - If the Blender installation folder is added to your system's `PATH`, meaning it can be called by name in a terminal from any directory, this parameter can be set like this: `blender_dir = 'blender'`.
 - `dem_dir: str` **Requires string**   
    - Absolute directory path to the input DEM image you wish to generate a hillshade of (including file extension). 
@@ -626,7 +626,7 @@ Usage example:
 # The following function uses Blender and the subprocess package to render a 3D hillshade map from within a python script
 
 
-renderDEM(blender_dir = 'C:/Program Files/Blender Foundation/Blender 3.5/blender.exe',
+renderDEM(blender_dir = 'C:/Program Files/Blender Foundation/Blender 4.0/blender.exe',
           dem_dir = 'path/to/dem.tif',
           output_dir = 'path/to/outputRender.png',
           exaggeration = 0.5,
@@ -726,7 +726,7 @@ fetchDEM(north_bound = 13.35,
 geotiffToImage('./demo/data/BarbadosDEM.tif', './demo/data/BarbadosDEM_image.png')
 
 # Specifying paths of blender.exe, input DEM image, and output rendered image
-blender = 'C:/Program Files/Blender Foundation/Blender 3.5/blender.exe'
+blender = 'C:/Program Files/Blender Foundation/Blender 4.0/blender.exe'
 DEM =  'C:/Home/Documents/BlenderMapDEM/demo/data/BarbadosDEM_image.png'
 output = 'C:/Home/Documents/BlenderMapDEM/demo/data/render.png'
 
