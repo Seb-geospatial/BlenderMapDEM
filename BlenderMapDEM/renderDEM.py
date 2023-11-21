@@ -170,7 +170,7 @@ def renderDEM(dem_dir: str, output_dir: str, exaggeration: float = 0.5, shadow_s
     # Set material color and change "Roughness" to 1 and "Specular" to 0 (makes material matte)
     mat.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value = (0.6, 0.6, 0.6, 1)
     mat.node_tree.nodes['Principled BSDF'].inputs['Roughness'].default_value = 1
-    mat.node_tree.nodes['Principled BSDF'].inputs['Specular'].default_value = 0
+    mat.node_tree.nodes['Principled BSDF'].inputs['Specular IOR Level'].default_value = 0
     
     # Add image texture node if it doesnt exist and specify its extension, interpolation, and colorspace modes
     if 'Image Texture' not in mat.node_tree.nodes:
@@ -181,7 +181,7 @@ def renderDEM(dem_dir: str, output_dir: str, exaggeration: float = 0.5, shadow_s
     imageTexture.image = DEM
     imageTexture.extension = 'EXTEND'
     imageTexture.interpolation = 'Smart'
-    imageTexture.image.colorspace_settings.name = 'Linear'
+    imageTexture.image.colorspace_settings.name = 'Linear Rec.709'
     
     # Add displacement node if it doesnt exist and specify the elevation exaggeration of heightmap
     if 'Displacement' not in mat.node_tree.nodes:
