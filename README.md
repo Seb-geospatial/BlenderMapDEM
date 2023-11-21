@@ -59,7 +59,7 @@ There is, however, a knowledge barrier of entry as only people who know how to u
 
 # 🏁 Getting Started <a name = "getting_started"></a>
 - Requirements:
-    - [Blender](https://www.blender.org/download/)
+    - [Blender](https://www.blender.org/download/) (this package is tested and working as of Blender 4.0)
     - [OpenTopography API key](https://portal.opentopography.org/lidarAuthorizationInfo?s=api)
     - Python 3.9
 
